@@ -504,22 +504,104 @@ function matchPush(row,q) { return row._pushValues.filter(p=>p.value.toLowerCase
 function matchCode(row,q) { return row._codes.some(c=>c.toLowerCase()===q.toLowerCase()||c.toLowerCase().includes(q.toLowerCase())); }
 function matchUrl(row,q)  { return row._urls.some(u=>u.toLowerCase().includes(q.toLowerCase())); }
 
+// Extract meaningful search keywords from a LE URL slug
+// /nala-resort-mission-beach-queensland-australia/ → ["nala resort", "nala", "mission beach"]
+function nameTermsFromUrl(urlQ) {
+  try {
+    const clean = urlQ.split('?')[0];
+    // Grab the slug part: /offer/{slug}/
+    const slugMatch = clean.match(/\/offer\/([a-z0-9-]+)/i);
+    if (!slugMatch) return [];
+    const slug = slugMatch[1];
+    // Strip common country/region noise words from the end
+    const noise = ['australia','queensland','nsw','victoria','thailand','asia','bali','indonesia','maldives','fiji','newzealand','nz','usa','uk','europe','india','safrica','southafrica','china','japan','international','the','and','of','by'];
+    const parts = slug.split('-').filter(p => p.length > 2 && !noise.includes(p));
+    if (!parts.length) return [];
+    // Build search terms: full meaningful phrase, plus first 2 words as a term
+    const full = parts.join(' ');
+    const short = parts.slice(0,2).join(' ');
+    const terms = [full];
+    if (short !== full) terms.push(short);
+    return terms;
+  } catch(e) { return []; }
+}
+
+// Given a property code, find what hotel name is associated with it across all selected sheets
+// Returns the best name string found, or null
+function resolveNameFromCode(codeQ, selected) {
+  for (const sheetName of selected) {
+    const sheet = parsedSheets[sheetName]; if (!sheet) continue;
+    for (const row of sheet.rows) {
+      if (matchCode(row, codeQ) && row._heroValues.length) {
+        // Return the first hero value as the resolved name
+        return row._heroValues[0].value.toLowerCase();
+      }
+    }
+  }
+  return null;
+}
+
+// Given a URL, find the associated hotel name by exact code match first, then slug terms
+function resolveNameFromUrl(urlQ, selected) {
+  // First try: extract code from URL and look it up
+  const codes = extractCodes([urlQ.includes('http') ? urlQ : 'https://' + urlQ]);
+  if (codes.length) {
+    const resolved = resolveNameFromCode(codes[0], selected);
+    if (resolved) return { name: resolved, method: 'code' };
+  }
+  // Second try: extract name terms from URL slug
+  const terms = nameTermsFromUrl(urlQ);
+  return terms.length ? { name: terms[0], method: 'slug', allTerms: terms } : null;
+}
+
 function collectResults(selected, nameQ, codeQ, urlQ) {
   const results = [];
+
+  // Resolve code → name if no nameQ provided
+  let resolvedName = nameQ;
+  let resolvedFrom = nameQ ? 'name' : null;
+
+  if (!resolvedName && codeQ) {
+    const n = resolveNameFromCode(codeQ, selected);
+    if (n) { resolvedName = n; resolvedFrom = 'code'; }
+  }
+
+  if (!resolvedName && urlQ) {
+    const r = resolveNameFromUrl(urlQ, selected);
+    if (r) { resolvedName = r.name; resolvedFrom = 'url'; }
+  }
+
+  // If we resolved a name from code/url, search hero cols by that name
+  // Also keep original code/url matching as a fallback for rows where name differs
+  const effectiveNameQ = resolvedName || '';
+
   selected.forEach(sheetName => {
     const sheet = parsedSheets[sheetName]; if (!sheet) return;
     sheet.rows.forEach(row => {
-      const heroMatches = nameQ ? matchHero(row,nameQ) : [];
-      const pushMatches = nameQ ? matchPush(row,nameQ) : [];
-      const codeHit = codeQ ? matchCode(row,codeQ) : false;
-      const urlHit  = urlQ  ? matchUrl(row,urlQ)   : false;
-      if (heroMatches.length||codeHit||urlHit)
-        results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:false, heroMatches, pushMatches:[], codeHit, urlHit });
-      if (nameQ&&pushMatches.length&&!heroMatches.length&&!codeHit&&!urlHit)
-        results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:true, heroMatches:[], pushMatches, codeHit:false, urlHit:false });
+      const heroMatches = effectiveNameQ ? matchHero(row, effectiveNameQ) : [];
+      const pushMatches = effectiveNameQ ? matchPush(row, effectiveNameQ) : [];
+
+      // Fallback direct code/url match (catches rows that might have a different name spelling)
+      const codeHit = codeQ ? matchCode(row, codeQ) : false;
+      const urlHit  = urlQ  ? matchUrl(row, urlQ)   : false;
+
+      // For a row to be a hero result: name match in hero cols, OR direct code/url hit
+      if (heroMatches.length || codeHit || urlHit) {
+        // Avoid duplicate if already matched by name
+        results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:false, heroMatches, pushMatches:[], codeHit, urlHit, resolvedFrom });
+      } else if (effectiveNameQ && pushMatches.length) {
+        results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:true, heroMatches:[], pushMatches, codeHit:false, urlHit:false, resolvedFrom });
+      }
     });
   });
-  return results;
+
+  // Deduplicate (same row could match by both name and code)
+  const seen = new Set();
+  return results.filter(r => {
+    const key = r.sheet + '|' + r.row.dateVal + '|' + (r.row._heroValues.map(h=>h.value).join(','));
+    if (seen.has(key)) return false;
+    seen.add(key); return true;
+  });
 }
 
 // ── Single search ─────────────────────────────────────────────
@@ -531,9 +613,20 @@ function searchSingle() {
   const codeQ=document.getElementById('s-code').value.trim().toLowerCase();
   const urlQ =document.getElementById('s-url').value.trim().toLowerCase();
   if (!nameQ&&!codeQ&&!urlQ) { errEl.style.display='block'; errEl.textContent='Enter at least one search term.'; return; }
+
+  // Resolve what name we'll actually search by
+  let displayTerm = nameQ || codeQ || urlQ;
+  if (!nameQ && codeQ) {
+    const resolved = resolveNameFromCode(codeQ, selected);
+    if (resolved) displayTerm = `${codeQ} → "${resolved}"`;
+  }
+  if (!nameQ && urlQ) {
+    const resolved = resolveNameFromUrl(urlQ, selected);
+    if (resolved) displayTerm = `URL → "${resolved.name}"`;
+  }
+
   const results=collectResults(selected,nameQ,codeQ,urlQ);
-  const parts=[nameQ&&`"${nameQ}"`,codeQ&&`code "${codeQ}"`,urlQ&&`URL "${urlQ}"`].filter(Boolean).join(' + ');
-  document.getElementById('results-label').textContent=`Results for ${parts}`;
+  document.getElementById('results-label').textContent=`Results for ${displayTerm}`;
   renderTable(results,false);
 }
 
