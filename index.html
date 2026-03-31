@@ -5,221 +5,247 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hotel Send Lookup</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0f0e0d;
-    --surface: #1a1917;
-    --surface2: #242220;
-    --surface3: #2c2a27;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(255,255,255,0.13);
-    --text: #f0ece6;
-    --text2: #9c9689;
-    --text3: #5c5a55;
-    --gold: #c9a84c;
-    --gold-dim: rgba(201,168,76,0.1);
-    --gold-dim2: rgba(201,168,76,0.18);
-    --green: #4caf82;
-    --green-dim: rgba(76,175,130,0.12);
-    --blue: #6b9ed4;
-    --blue-dim: rgba(107,158,212,0.12);
-    --purple: #a78bca;
-    --purple-dim: rgba(167,139,202,0.12);
-    --orange: #d4824a;
-    --orange-dim: rgba(212,130,74,0.12);
-    --red: #e07070;
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #f0ede8;
+    --surface3: #e8e4de;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --text: #1a1814;
+    --text2: #5a5650;
+    --text3: #9a9490;
+    --gold: #b8860b;
+    --gold-bright: #d4a017;
+    --gold-dim: rgba(184,134,11,0.1);
+    --gold-dim2: rgba(184,134,11,0.18);
+    --green: #1a7a4a;
+    --green-bright: #22a362;
+    --green-dim: rgba(26,122,74,0.1);
+    --blue: #1a5fa8;
+    --blue-bright: #2272cc;
+    --blue-dim: rgba(26,95,168,0.1);
+    --purple: #6b3fa0;
+    --purple-bright: #8855cc;
+    --purple-dim: rgba(107,63,160,0.1);
+    --orange: #c45c1a;
+    --orange-bright: #e06820;
+    --orange-dim: rgba(196,92,26,0.1);
+    --red: #c0392b;
+    --red-dim: rgba(192,57,43,0.1);
+    --teal: #0e7c7b;
+    --teal-dim: rgba(14,124,123,0.1);
     --radius: 10px;
     --radius-lg: 14px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.05);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.6; }
 
-  .header { padding: 2rem 2.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: baseline; gap: 1rem; }
-  .header h1 { font-family: 'DM Serif Display', serif; font-size: 1.5rem; font-weight: 400; letter-spacing: -0.01em; }
-  .header-sub { font-size: 11px; color: var(--text3); letter-spacing: 0.07em; text-transform: uppercase; }
-  .container { max-width: 1280px; margin: 0 auto; padding: 2rem 2.5rem; }
+  /* Header */
+  .header { padding: 1.5rem 2.5rem; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; box-shadow: var(--shadow); }
+  .header-logo { width: 36px; height: 36px; background: var(--gold-bright); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .header-logo svg { width: 20px; height: 20px; stroke: white; fill: none; stroke-width: 2; }
+  .header h1 { font-family: 'DM Serif Display', serif; font-size: 1.4rem; font-weight: 400; letter-spacing: -0.01em; color: var(--text); }
+  .header-sub { font-size: 11px; color: var(--text3); letter-spacing: 0.07em; text-transform: uppercase; margin-left: auto; }
 
-  .upload-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius-lg); padding: 3rem 2rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s; }
-  .upload-zone:hover, .upload-zone.drag { border-color: var(--gold); background: var(--gold-dim); }
-  .upload-icon { width: 48px; height: 48px; margin: 0 auto 1rem; background: var(--surface2); border: 1px solid var(--border2); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-  .upload-icon svg { width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.5; }
-  .upload-zone h2 { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
-  .upload-zone p { font-size: 13px; color: var(--text2); margin-bottom: 1.25rem; }
-  .upload-btn { display: inline-block; padding: 8px 20px; font-size: 13px; font-family: 'DM Sans', sans-serif; border: 1px solid var(--gold); border-radius: var(--radius); background: transparent; color: var(--gold); cursor: pointer; }
-  .upload-btn:hover { background: var(--gold-dim); }
+  .container { max-width: 1200px; margin: 0 auto; padding: 2rem 2rem; }
+
+  /* Upload */
+  .upload-card { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); padding: 3rem 2rem; text-align: center; cursor: pointer; border: 2px dashed var(--border2); transition: border-color 0.2s, background 0.2s; }
+  .upload-card:hover, .upload-card.drag { border-color: var(--gold-bright); background: var(--gold-dim); }
+  .upload-icon { width: 56px; height: 56px; margin: 0 auto 1.25rem; background: var(--gold-dim); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+  .upload-icon svg { width: 26px; height: 26px; stroke: var(--gold-bright); fill: none; stroke-width: 1.8; }
+  .upload-card h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  .upload-card p { font-size: 13px; color: var(--text2); margin-bottom: 1.5rem; }
+  .upload-btn { display: inline-block; padding: 9px 22px; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 500; border: 2px solid var(--gold-bright); border-radius: var(--radius); background: var(--gold-bright); color: white; cursor: pointer; transition: all 0.15s; }
+  .upload-btn:hover { background: var(--gold); border-color: var(--gold); }
   #file-input { display: none; }
 
-  .file-bar { display: flex; align-items: center; gap: 12px; padding: 11px 16px; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); margin-bottom: 1.25rem; }
-  .file-bar .file-icon { width: 30px; height: 30px; background: var(--green-dim); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .file-bar .file-icon svg { width: 15px; height: 15px; stroke: var(--green); fill: none; stroke-width: 1.5; }
-  .file-bar .fname { font-weight: 500; font-size: 13px; flex: 1; }
+  /* File bar */
+  .file-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); margin-bottom: 1.25rem; box-shadow: var(--shadow); }
+  .file-bar .file-icon { width: 34px; height: 34px; background: var(--green-dim); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .file-bar .file-icon svg { width: 17px; height: 17px; stroke: var(--green-bright); fill: none; stroke-width: 1.8; }
+  .file-bar .fname { font-weight: 600; font-size: 13px; flex: 1; color: var(--text); }
   .file-bar .fmeta { font-size: 12px; color: var(--text3); }
-  .remove-btn { font-size: 12px; color: var(--text3); cursor: pointer; padding: 4px 10px; border: 1px solid var(--border); border-radius: 6px; background: transparent; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
-  .remove-btn:hover { border-color: var(--red); color: var(--red); }
+  .remove-btn { font-size: 12px; color: var(--text3); cursor: pointer; padding: 5px 12px; border: 1px solid var(--border2); border-radius: 6px; background: transparent; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+  .remove-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-dim); }
 
-  .info-bar { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius); margin-bottom: 10px; font-size: 12px; }
-  .info-bar-label { color: var(--text3); white-space: nowrap; padding-top: 2px; min-width: 130px; }
-  .info-bar-content { display: flex; flex-wrap: wrap; gap: 6px; }
-  .col-chip { padding: 2px 9px; border-radius: 4px; font-size: 11px; font-weight: 500; }
-
-  .sheet-section { margin-bottom: 1.5rem; margin-top: 1rem; }
-  .section-label { font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; display: block; }
+  /* Sheet section */
+  .sheet-section { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; }
+  .section-label { font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); margin-bottom: 12px; display: block; font-weight: 600; }
   .sheet-list { display: flex; flex-wrap: wrap; gap: 8px; }
-  .sheet-chip { display: flex; align-items: center; gap: 7px; padding: 6px 12px; border: 1px solid var(--border2); border-radius: 99px; cursor: pointer; font-size: 12px; color: var(--text2); background: var(--surface2); transition: all 0.15s; user-select: none; }
+  .sheet-chip { display: flex; align-items: center; gap: 8px; padding: 7px 14px; border: 1.5px solid var(--border2); border-radius: 99px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text2); background: var(--surface2); transition: all 0.15s; user-select: none; }
   .sheet-chip input[type=checkbox] { display: none; }
-  .sheet-chip.active { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
-  .sheet-chip .dot { width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid currentColor; display: inline-block; flex-shrink: 0; }
-  .sheet-chip.active .dot { background: var(--gold); border-color: var(--gold); }
-  .toggle-link { font-size: 12px; color: var(--text3); cursor: pointer; display: inline-block; margin-top: 8px; }
-  .toggle-link:hover { color: var(--text2); }
+  .sheet-chip.active { border-color: var(--blue-bright); color: var(--blue); background: var(--blue-dim); }
+  .sheet-chip .dot { width: 8px; height: 8px; border-radius: 50%; border: 2px solid currentColor; display: inline-block; flex-shrink: 0; transition: all 0.15s; }
+  .sheet-chip.active .dot { background: var(--blue-bright); border-color: var(--blue-bright); }
+  .sheet-chip:hover:not(.active) { border-color: var(--border2); background: var(--surface3); color: var(--text); }
+  .sheet-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+  .toggle-link { font-size: 12px; color: var(--blue-bright); cursor: pointer; font-weight: 500; }
+  .toggle-link:hover { text-decoration: underline; }
+  .no-sheets-msg { font-size: 12px; color: var(--text3); font-style: italic; }
 
-  .search-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem; }
-  .mode-tabs { display: flex; gap: 4px; margin-bottom: 1.25rem; background: var(--surface2); border-radius: var(--radius); padding: 4px; width: fit-content; }
-  .mode-tab { padding: 6px 16px; font-size: 12px; font-family: 'DM Sans', sans-serif; border: none; border-radius: 7px; cursor: pointer; background: transparent; color: var(--text3); transition: all 0.15s; }
-  .mode-tab.active { background: var(--surface3); color: var(--text); }
+  /* Search panel */
+  .search-panel { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 1.5rem; }
+  .mode-tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+  .mode-tab { padding: 8px 18px; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 500; border: 1.5px solid var(--border2); border-radius: 99px; cursor: pointer; background: transparent; color: var(--text2); transition: all 0.15s; }
+  .mode-tab.active { background: var(--blue-bright); border-color: var(--blue-bright); color: white; }
+  .mode-tab:hover:not(.active) { border-color: var(--blue-bright); color: var(--blue); }
 
-  .single-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
-  .search-field { display: flex; flex-direction: column; gap: 6px; }
-  .search-field label { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
-  .lbadge { font-size: 10px; padding: 1px 6px; border-radius: 4px; }
-  .search-field input { height: 38px; padding: 0 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--surface2); color: var(--text); border: 1px solid var(--border2); border-radius: var(--radius); transition: border-color 0.15s; width: 100%; }
-  .search-field input:focus { outline: none; border-color: var(--gold); }
+  .single-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 1.25rem; }
+  .search-field { display: flex; flex-direction: column; gap: 7px; }
+  .search-field label { font-size: 12px; font-weight: 600; color: var(--text2); display: flex; align-items: center; gap: 7px; letter-spacing: 0.02em; }
+  .lbadge { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; letter-spacing: 0.03em; }
+  .badge-hero { background: var(--blue-dim); color: var(--blue); }
+  .badge-code { background: var(--purple-dim); color: var(--purple); }
+  .badge-url  { background: var(--green-dim); color: var(--green); }
+  .search-field input { height: 42px; padding: 0 14px; font-size: 14px; font-family: 'DM Sans', sans-serif; background: var(--surface2); color: var(--text); border: 1.5px solid var(--border2); border-radius: var(--radius); transition: border-color 0.15s, box-shadow 0.15s; width: 100%; }
+  .search-field input:focus { outline: none; border-color: var(--blue-bright); box-shadow: 0 0 0 3px rgba(34,114,204,0.12); }
   .search-field input::placeholder { color: var(--text3); }
 
-  .multi-inputs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+  /* Multi rows */
+  .multi-inputs { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
   .multi-row { display: flex; gap: 8px; align-items: center; }
-  .multi-row input { flex: 1; height: 36px; padding: 0 12px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--surface2); color: var(--text); border: 1px solid var(--border2); border-radius: var(--radius); transition: border-color 0.15s; }
-  .multi-row input:focus { outline: none; border-color: var(--gold); }
+  .multi-row input { flex: 1; height: 40px; padding: 0 14px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: var(--surface2); color: var(--text); border: 1.5px solid var(--border2); border-radius: var(--radius); transition: all 0.15s; }
+  .multi-row input:focus { outline: none; border-color: var(--blue-bright); box-shadow: 0 0 0 3px rgba(34,114,204,0.12); }
   .multi-row input::placeholder { color: var(--text3); }
-  .multi-type { height: 36px; padding: 0 10px; font-size: 12px; font-family: 'DM Sans', sans-serif; background: var(--surface3); color: var(--text2); border: 1px solid var(--border2); border-radius: var(--radius); cursor: pointer; }
-  .del-row { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border2); background: transparent; color: var(--text3); cursor: pointer; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
-  .del-row:hover { border-color: var(--red); color: var(--red); }
-  .add-term { font-size: 12px; color: var(--text3); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; padding: 4px 0; }
-  .add-term:hover { color: var(--text2); }
+  .multi-type { height: 40px; padding: 0 10px; font-size: 12px; font-family: 'DM Sans', sans-serif; font-weight: 500; background: var(--surface3); color: var(--text2); border: 1.5px solid var(--border2); border-radius: var(--radius); cursor: pointer; }
+  .del-row { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--border2); background: transparent; color: var(--text3); cursor: pointer; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+  .del-row:hover { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+  .add-term { font-size: 13px; color: var(--blue-bright); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; padding: 4px 0; font-weight: 500; }
+  .add-term:hover { text-decoration: underline; }
 
-  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1.25rem; }
-  .btn-primary { height: 38px; padding: 0 22px; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 500; background: var(--gold); color: #1a1510; border: none; border-radius: var(--radius); cursor: pointer; transition: opacity 0.15s; }
-  .btn-primary:hover { opacity: 0.88; }
-  .btn-secondary { height: 38px; padding: 0 16px; font-size: 13px; font-family: 'DM Sans', sans-serif; background: transparent; color: var(--text2); border: 1px solid var(--border2); border-radius: var(--radius); cursor: pointer; }
-  .btn-secondary:hover { color: var(--text); }
-  .search-hint { font-size: 12px; color: var(--text3); margin-top: 10px; }
-  .error-msg { font-size: 13px; color: var(--red); margin-top: 8px; }
+  /* Buttons */
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 1.25rem; }
+  .btn-primary { height: 42px; padding: 0 26px; font-size: 14px; font-family: 'DM Sans', sans-serif; font-weight: 600; background: var(--blue-bright); color: white; border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.15s; box-shadow: 0 2px 6px rgba(34,114,204,0.3); }
+  .btn-primary:hover { background: var(--blue); box-shadow: 0 4px 10px rgba(34,114,204,0.35); }
+  .btn-secondary { height: 42px; padding: 0 18px; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 500; background: transparent; color: var(--text2); border: 1.5px solid var(--border2); border-radius: var(--radius); cursor: pointer; transition: all 0.15s; }
+  .btn-secondary:hover { color: var(--text); border-color: var(--text3); background: var(--surface2); }
+  .search-hint { font-size: 12px; color: var(--text3); margin-top: 10px; line-height: 1.5; }
+  .error-msg { font-size: 13px; color: var(--red); margin-top: 8px; font-weight: 500; }
 
+  /* Stats */
   .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
-  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px 16px; }
-  .stat-card .s-label { font-size: 10px; color: var(--text3); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 5px; }
-  .stat-card .s-value { font-size: 20px; font-weight: 500; }
-  .stat-card .s-value.small { font-size: 13px; line-height: 1.5; padding-top: 1px; }
+  .stat-card { background: var(--surface); border-radius: var(--radius); padding: 14px 18px; box-shadow: var(--shadow); border-left: 3px solid transparent; }
+  .stat-card:nth-child(1) { border-left-color: var(--blue-bright); }
+  .stat-card:nth-child(2) { border-left-color: var(--green-bright); }
+  .stat-card:nth-child(3) { border-left-color: var(--orange-bright); }
+  .stat-card:nth-child(4) { border-left-color: var(--purple-bright); }
+  .stat-card .s-label { font-size: 10px; color: var(--text3); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 4px; font-weight: 600; }
+  .stat-card .s-value { font-size: 22px; font-weight: 600; color: var(--text); }
+  .stat-card .s-value.small { font-size: 13px; line-height: 1.5; padding-top: 2px; font-weight: 500; }
 
+  /* Results */
   .results-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .results-label { font-size: 13px; font-weight: 500; color: var(--text2); }
-  .count-badge { font-size: 11px; padding: 3px 10px; border-radius: 99px; background: var(--gold-dim2); color: var(--gold); }
+  .results-label { font-size: 14px; font-weight: 600; color: var(--text); }
+  .count-badge { font-size: 12px; padding: 4px 12px; border-radius: 99px; background: var(--blue-dim); color: var(--blue); font-weight: 600; }
 
-  .table-wrap { border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: auto; }
-  table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 900px; }
-  thead tr { border-bottom: 1px solid var(--border2); }
-  th { text-align: left; font-size: 10px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text3); padding: 10px 14px; white-space: nowrap; }
-  td { padding: 10px 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); vertical-align: top; word-break: break-word; }
+  .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: auto; box-shadow: var(--shadow); }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 800px; }
+  thead tr { border-bottom: 2px solid var(--border2); background: var(--surface2); }
+  th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text2); padding: 11px 14px; white-space: nowrap; }
+  td { padding: 11px 14px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); vertical-align: top; word-break: break-word; }
   tr:last-child td { border-bottom: none; }
-  tbody tr:not(.group-header):not(.push-row):hover td { background: var(--surface2); }
-  .push-row td { background: rgba(212,130,74,0.04); border-left: 2px solid rgba(212,130,74,0.3); }
-  .push-row td:first-child { border-left: 2px solid rgba(212,130,74,0.3); }
-  .push-row:hover td { background: rgba(212,130,74,0.09) !important; }
+  tbody tr:not(.group-header):not(.push-row):hover td { background: #f8f6f2; }
+  .push-row td { background: #fff9f5; }
+  .push-row:hover td { background: #fef3ea !important; }
 
-  .group-header td { background: var(--surface2); padding: 8px 14px; font-size: 11px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text2); border-bottom: 1px solid var(--border2); }
-  .group-header .gh-name { color: var(--gold); }
-  .group-header .gh-count { color: var(--text3); margin-left: 8px; font-weight: 400; }
+  /* Group headers */
+  .group-header td { background: var(--surface3); padding: 9px 14px; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text2); border-bottom: 1px solid var(--border2); }
+  .group-header .gh-name { color: var(--blue); }
+  .group-header .gh-count { color: var(--text3); margin-left: 10px; font-weight: 500; text-transform: none; letter-spacing: 0; font-size: 12px; }
 
-  /* Hero position badges - one per hero number */
-  .hero-badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 10px; border-radius: 99px; white-space: nowrap; }
-  .h1 { background: rgba(107,158,212,0.15); color: var(--blue);   border: 1px solid rgba(107,158,212,0.3); }
-  .h2 { background: rgba(76,175,130,0.15);  color: var(--green);  border: 1px solid rgba(76,175,130,0.3); }
-  .h3 { background: rgba(201,168,76,0.15);  color: var(--gold);   border: 1px solid rgba(201,168,76,0.3); }
-  .h4 { background: rgba(167,139,202,0.15); color: var(--purple); border: 1px solid rgba(167,139,202,0.3); }
-  .h5 { background: rgba(212,130,74,0.15);  color: var(--orange); border: 1px solid rgba(212,130,74,0.3); }
-  .h6 { background: rgba(224,112,112,0.15); color: var(--red);    border: 1px solid rgba(224,112,112,0.3); }
+  /* Hero badges */
+  .hero-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; white-space: nowrap; letter-spacing: 0.02em; }
+  .h1 { background: var(--blue-dim);   color: var(--blue);   border: 1.5px solid rgba(26,95,168,0.25); }
+  .h2 { background: var(--green-dim);  color: var(--green);  border: 1.5px solid rgba(26,122,74,0.25); }
+  .h3 { background: var(--gold-dim);   color: var(--gold);   border: 1.5px solid rgba(184,134,11,0.25); }
+  .h4 { background: var(--purple-dim); color: var(--purple); border: 1.5px solid rgba(107,63,160,0.25); }
+  .h5 { background: var(--orange-dim); color: var(--orange); border: 1.5px solid rgba(196,92,26,0.25); }
+  .h6 { background: var(--red-dim);    color: var(--red);    border: 1.5px solid rgba(192,57,43,0.25); }
 
-  /* Push badge */
-  .push-type-badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 4px; background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(212,130,74,0.3); white-space: nowrap; }
-
-  /* Push column label */
-  .push-col-name { display: block; font-size: 11px; color: var(--orange); font-weight: 500; margin-bottom: 2px; }
+  /* Push */
+  .push-type-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 99px; background: var(--orange-dim); color: var(--orange); border: 1.5px solid rgba(196,92,26,0.25); }
+  .push-col-name { display: block; font-size: 11px; color: var(--orange); font-weight: 700; margin-bottom: 2px; }
   .push-cell-value { font-size: 12px; color: var(--text2); }
 
-  .code-text { font-size: 12px; color: var(--purple); font-weight: 500; }
-  .url-link { display: block; font-size: 11px; color: var(--blue); text-decoration: none; margin-top: 3px; word-break: break-all; line-height: 1.4; }
-  .url-link:hover { text-decoration: underline; }
-  .sheet-pill { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 4px; background: var(--surface3); color: var(--text3); border: 1px solid var(--border); }
+  .sheet-pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); font-weight: 500; }
+  .code-text { font-size: 12px; color: var(--purple-bright); font-weight: 700; }
   .empty-state { text-align: center; padding: 3rem; color: var(--text3); font-size: 14px; }
 
   @media (max-width: 700px) {
     .single-grid { grid-template-columns: 1fr; }
     .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .container { padding: 1rem 1.25rem; }
-    .header { padding: 1.25rem; }
+    .container { padding: 1rem; }
+    .header { padding: 1rem 1.25rem; }
   }
 </style>
 </head>
 <body>
 
 <div class="header">
+  <div class="header-logo">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+  </div>
   <h1>Hotel Send Lookup</h1>
-  <span class="header-sub">Email Schedule Tool</span>
+  <span class="header-sub">Sales Ops · Email Schedule Tool</span>
 </div>
 
 <div class="container">
 
+  <!-- Upload -->
   <div id="upload-area">
-    <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+    <div class="upload-card" id="drop-zone" onclick="document.getElementById('file-input').click()">
       <div class="upload-icon">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       </div>
       <h2>Upload your email schedule</h2>
-      <p>Drag and drop your Excel file here</p>
-      <button class="upload-btn" onclick="event.stopPropagation(); document.getElementById('file-input').click()">Browse files</button>
+      <p>Drag and drop your Excel file here, or click to browse</p>
+      <button class="upload-btn" onclick="event.stopPropagation(); document.getElementById('file-input').click()">Choose file</button>
     </div>
     <input type="file" id="file-input" accept=".xlsx,.xls,.csv">
-    <div id="upload-error" class="error-msg" style="display:none; margin-top:8px;"></div>
+    <div id="upload-error" class="error-msg" style="display:none; margin-top:10px;"></div>
   </div>
 
+  <!-- App -->
   <div id="app-area" style="display:none;">
 
     <div id="file-bar" class="file-bar"></div>
 
-    <div id="hero-info" class="info-bar" style="display:none;">
-      <span class="info-bar-label">Hero cols detected:</span>
-      <div class="info-bar-content" id="hero-col-chips"></div>
-    </div>
-    <div id="push-info" class="info-bar" style="display:none;">
-      <span class="info-bar-label">Push cols detected:</span>
-      <div class="info-bar-content" id="push-col-chips"></div>
-    </div>
-
+    <!-- Sheet selector -->
     <div class="sheet-section">
-      <span class="section-label">Sheets to search</span>
+      <span class="section-label">Select schedules to search</span>
       <div class="sheet-list" id="sheet-list"></div>
-      <span class="toggle-link" onclick="toggleAllSheets()">Select all / none</span>
+      <div class="sheet-footer">
+        <span class="toggle-link" onclick="toggleAllSheets()">Select all / none</span>
+        <span class="no-sheets-msg" id="no-sheets-msg" style="display:none;">No matching schedule sheets found in this file</span>
+      </div>
     </div>
 
+    <!-- Search -->
     <div class="search-panel">
       <div class="mode-tabs">
         <button class="mode-tab active" onclick="setMode('single')">Single hotel</button>
         <button class="mode-tab" onclick="setMode('multi')">Multiple hotels</button>
       </div>
 
+      <!-- Single -->
       <div id="single-mode">
         <div class="single-grid">
           <div class="search-field">
-            <label>Hotel / property name <span class="lbadge" style="background:var(--blue-dim);color:var(--blue);">hero cols only</span></label>
+            <label>Hotel / property name <span class="lbadge badge-hero">hero cols only</span></label>
             <input id="s-name" type="text" placeholder="e.g. Nala Resort">
           </div>
           <div class="search-field">
-            <label>Property code <span class="lbadge" style="background:var(--purple-dim);color:var(--purple);">from URL</span></label>
-            <input id="s-code" type="text" placeholder="e.g. ABCDE or 12345">
+            <label>Property code <span class="lbadge badge-code">from URL</span></label>
+            <input id="s-code" type="text" placeholder="e.g. 006RF00000Mg67ZYAR">
           </div>
           <div class="search-field">
-            <label>Luxury Escapes URL <span class="lbadge" style="background:var(--green-dim);color:var(--green);">link</span></label>
+            <label>Luxury Escapes URL <span class="lbadge badge-url">link</span></label>
             <input id="s-url" type="text" placeholder="e.g. luxuryescapes.com/offer/…">
           </div>
         </div>
@@ -228,14 +254,15 @@
           <button class="btn-secondary" onclick="showAll()">Show all</button>
           <button class="btn-secondary" onclick="resetTool()">Change file</button>
         </div>
-        <div class="search-hint">Name searches Hero 1–6 columns only. Push mentions are listed separately with the column name and cell content.</div>
+        <div class="search-hint">Name searches Hero 1–6 columns only. Push mentions are listed separately with column name and content.</div>
         <div id="single-error" class="error-msg" style="display:none;"></div>
       </div>
 
+      <!-- Multi -->
       <div id="multi-mode" style="display:none;">
         <div class="multi-inputs" id="multi-inputs"></div>
         <span class="add-term" onclick="addMultiRow()">+ Add another hotel</span>
-        <div class="search-hint" style="margin-top:8px;">Each hotel searched separately. Results grouped by hotel. Push mentions listed with column name and content.</div>
+        <div class="search-hint" style="margin-top:8px;">Each hotel searched separately. Results grouped by hotel. Push mentions shown with column and content.</div>
         <div class="btn-row">
           <button class="btn-primary" onclick="searchMulti()">Search all</button>
           <button class="btn-secondary" onclick="clearMulti()">Clear</button>
@@ -245,6 +272,7 @@
       </div>
     </div>
 
+    <!-- Results -->
     <div id="results-area" style="display:none;">
       <div class="stats-row">
         <div class="stat-card"><div class="s-label">Hero sends</div><div class="s-value" id="s-total">0</div></div>
@@ -260,12 +288,12 @@
         <table>
           <thead>
             <tr>
-              <th style="width:10%">Sheet</th>
-              <th style="width:13%">Send date</th>
-              <th style="width:25%">Hotel / property</th>
-              <th style="width:16%">Position / type</th>
-              <th style="width:25%">Column & content</th>
-              <th style="width:11%">Region</th>
+              <th style="width:10%">Schedule</th>
+              <th style="width:12%">Send date</th>
+              <th style="width:22%">Hotel / property</th>
+              <th style="width:14%">Position / type</th>
+              <th style="width:28%">Column &amp; content</th>
+              <th style="width:14%">Region</th>
             </tr>
           </thead>
           <tbody id="results-body"></tbody>
@@ -282,11 +310,40 @@ let parsedSheets = {};
 let currentMode = 'single';
 let multiRowCount = 0;
 
-// ── Column detection patterns ─────────────────────────────────
+// The 7 allowed schedule sheet names — fuzzy matched
+const ALLOWED_SHEETS = [
+  'au email schedule',
+  'nz email schedule',
+  'us-ca schedule',
+  'asia email schedule',
+  'india-safrica schedule',
+  'lifestyle schedule',
+  'uk-eu schedule'
+];
+
+function normalise(s) { return s.toLowerCase().replace(/[^a-z0-9]/g,''); }
+
+function isAllowedSheet(name) {
+  const n = normalise(name);
+  return ALLOWED_SHEETS.some(a => {
+    const an = normalise(a);
+    // Allow if normalised name contains the allowed name or vice versa (handles spacing/punctuation variants)
+    return n.includes(an) || an.includes(n) || levenshtein(n, an) <= 3;
+  });
+}
+
+// Simple Levenshtein for fuzzy match
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, (_,i) => Array.from({length: n+1}, (_,j) => i===0?j:j===0?i:0));
+  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++) dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
 function isHeroCol(h) { return /^hero\s*[1-6]/i.test(h.trim()); }
 function isPushCol(h) { return /push/i.test(h.trim()); }
-function heroNum(h) { const m = h.match(/hero\s*([1-6])/i); return m ? parseInt(m[1]) : 0; }
-function heroCls(n) { return 'h' + Math.min(Math.max(n,1),6); }
+function heroNum(h)   { const m = h.match(/hero\s*([1-6])/i); return m ? parseInt(m[1]) : 0; }
+function heroCls(n)   { return 'h' + Math.min(Math.max(n,1),6); }
 
 // ── File handling ─────────────────────────────────────────────
 const dz = document.getElementById('drop-zone');
@@ -299,20 +356,19 @@ function handleFile(file) {
   const errEl = document.getElementById('upload-error');
   errEl.style.display = 'none';
   const reader = new FileReader();
-  reader.onerror = () => { errEl.style.display = 'block'; errEl.textContent = 'Error reading file.'; };
+  reader.onerror = () => { errEl.style.display='block'; errEl.textContent='Error reading file.'; };
   reader.onload = function(e) {
     try {
-      const wb = XLSX.read(new Uint8Array(e.target.result), { type: 'array', cellDates: true, dateNF: 'dd/mm/yyyy' });
+      const wb = XLSX.read(new Uint8Array(e.target.result), { type:'array', cellDates:true, dateNF:'dd/mm/yyyy' });
       allSheets = {};
       wb.SheetNames.forEach(name => {
-        allSheets[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: '', raw: false, dateNF: 'dd/mm/yyyy' });
+        allSheets[name] = XLSX.utils.sheet_to_json(wb.Sheets[name], { header:1, defval:'', raw:false, dateNF:'dd/mm/yyyy' });
       });
       parsedSheets = {};
       Object.keys(allSheets).forEach(name => { parsedSheets[name] = parseSheet(name, allSheets[name]); });
       buildSheetChips();
       initMultiRows();
-      showColInfo();
-      const totalRows = Object.values(parsedSheets).reduce((a, s) => a + s.rows.length, 0);
+      const totalRows = Object.values(parsedSheets).reduce((a,s) => a+s.rows.length, 0);
       document.getElementById('upload-area').style.display = 'none';
       document.getElementById('app-area').style.display = 'block';
       document.getElementById('results-area').style.display = 'none';
@@ -320,11 +376,11 @@ function handleFile(file) {
         <div class="file-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
         <span class="fname">${file.name}</span>
         <span class="fmeta">${wb.SheetNames.length} sheet${wb.SheetNames.length>1?'s':''} · ${totalRows} rows total</span>
-        <button class="remove-btn" onclick="resetTool()">Remove</button>
+        <button class="remove-btn" onclick="resetTool()">Remove file</button>
       `;
     } catch(err) {
-      errEl.style.display = 'block';
-      errEl.textContent = 'Could not read this file. (' + err.message + ')';
+      errEl.style.display='block';
+      errEl.textContent='Could not read this file. (' + err.message + ')';
     }
   };
   reader.readAsArrayBuffer(file);
@@ -332,118 +388,80 @@ function handleFile(file) {
 
 // ── Parse sheet ───────────────────────────────────────────────
 function parseSheet(sheetName, rawRows) {
-  if (!rawRows || rawRows.length < 2) return { sheetName, headers: [], heroCols: [], pushCols: [], dateIdx: null, regionIdx: null, rows: [] };
-  const headers = rawRows[0].map(h => String(h || '').trim());
+  if (!rawRows || rawRows.length < 2) return { sheetName, headers:[], heroCols:[], pushCols:[], dateIdx:null, regionIdx:null, rows:[] };
+  const headers = rawRows[0].map(h => String(h||'').trim());
   const norm = headers.map(h => h.toLowerCase().replace(/\s+/g,' ').trim());
-
-  const heroCols = [], pushCols = [];
-  headers.forEach((h, i) => {
-    if (isHeroCol(h)) heroCols.push({ name: h, idx: i, num: heroNum(h) });
-    else if (isPushCol(h)) pushCols.push({ name: h, idx: i });
+  const heroCols=[], pushCols=[];
+  headers.forEach((h,i) => {
+    if (isHeroCol(h)) heroCols.push({ name:h, idx:i, num:heroNum(h) });
+    else if (isPushCol(h)) pushCols.push({ name:h, idx:i });
   });
-  heroCols.sort((a,b) => a.num - b.num);
-
+  heroCols.sort((a,b)=>a.num-b.num);
   const dateIdx   = guessIdx(norm, ['send date','senddate','date','scheduled','deploy']);
   const regionIdx = guessIdx(norm, ['region','market','area','territory','geo','country']);
-
   const rows = rawRows.slice(1)
     .filter(cols => cols.some(c => String(c||'').trim()))
     .map(cols => {
-      const allText = cols.map(c => String(c||'')).join(' ');
+      const allText = cols.map(c=>String(c||'')).join(' ');
       const urls  = extractUrls(allText);
       const codes = extractCodes(urls);
-
-      // Hero hits: array of { colName, num, value }
-      const heroValues = heroCols
-        .map(hc => ({ colName: hc.name, num: hc.num, value: String(cols[hc.idx]||'').trim() }))
-        .filter(h => h.value && !/^n\/a$/i.test(h.value));
-
-      // Push hits: array of { colName, value }
-      const pushValues = pushCols
-        .map(pc => ({ colName: pc.name, value: String(cols[pc.idx]||'').trim() }))
-        .filter(p => p.value && !/^n\/a$/i.test(p.value));
-
+      const heroValues = heroCols.map(hc=>({ colName:hc.name, num:hc.num, value:String(cols[hc.idx]||'').trim() })).filter(h=>h.value&&!/^n\/a$/i.test(h.value));
+      const pushValues = pushCols.map(pc=>({ colName:pc.name, value:String(cols[pc.idx]||'').trim() })).filter(p=>p.value&&!/^n\/a$/i.test(p.value));
       return {
-        _urls: urls,
-        _codes: codes,
-        _heroValues: heroValues,
-        _pushValues: pushValues,
+        _urls: urls, _codes: codes, _heroValues: heroValues, _pushValues: pushValues,
         dateVal:   dateIdx   !== null ? String(cols[dateIdx]  ||'').trim() : '',
         regionVal: regionIdx !== null ? String(cols[regionIdx]||'').trim() : '',
       };
     });
-
   return { sheetName, headers, heroCols, pushCols, dateIdx, regionIdx, rows };
 }
 
 function guessIdx(norm, candidates) {
-  for (const c of candidates) { const i = norm.findIndex(h => h.includes(c)); if (i >= 0) return i; }
+  for (const c of candidates) { const i=norm.findIndex(h=>h.includes(c)); if (i>=0) return i; }
   return null;
 }
 function extractUrls(text) { return (text.match(/https?:\/\/[^\s,"'<>\]]+/g)||[]); }
-
-// LE property code sits immediately after /offer/{slug}/ before the ? query string
-// e.g. /offer/amora-beach-resort-phuket-thailand-asia/006RF00000Mg67ZYAR?searchId=...
 function extractCodes(urls) {
   const s = new Set();
   urls.forEach(u => {
     try {
       const clean = u.split('?')[0].replace(/\/$/, '');
-      // Primary: /offer/{slug}/{CODE}
       const leMatch = clean.match(/\/offer\/[^/]+\/([A-Za-z0-9]{6,})\s*$/);
       if (leMatch) { s.add(leMatch[1]); return; }
-      // Fallback: last path segment that looks like a code (alphanumeric, no hyphens, 6+ chars)
       const segs = clean.split('/');
-      const last = segs[segs.length - 1];
+      const last = segs[segs.length-1];
       if (/^[A-Za-z0-9]{6,}$/.test(last)) s.add(last);
     } catch(e) {}
   });
   return [...s];
 }
 
-// ── Show detected columns ─────────────────────────────────────
-function showColInfo() {
-  const heroSet = new Set(), pushSet = new Set();
-  Object.values(parsedSheets).forEach(s => {
-    s.heroCols.forEach(c => heroSet.add(c.name));
-    s.pushCols.forEach(c => pushSet.add(c.name));
-  });
-  if (heroSet.size) {
-    const chips = document.getElementById('hero-col-chips');
-    chips.innerHTML = '';
-    [...heroSet].sort((a,b)=>heroNum(a)-heroNum(b)).forEach((name,i) => {
-      const sp = document.createElement('span');
-      sp.className = 'col-chip ' + heroCls(i+1);
-      sp.textContent = name;
-      chips.appendChild(sp);
-    });
-    document.getElementById('hero-info').style.display = 'flex';
-  }
-  if (pushSet.size) {
-    const chips = document.getElementById('push-col-chips');
-    chips.innerHTML = '';
-    [...pushSet].forEach(name => {
-      const sp = document.createElement('span');
-      sp.className = 'col-chip push-type-badge';
-      sp.textContent = name;
-      chips.appendChild(sp);
-    });
-    document.getElementById('push-info').style.display = 'flex';
-  }
-}
-
-// ── Sheet chips ───────────────────────────────────────────────
+// ── Sheet chips — only allowed sheets, all deselected ─────────
 function buildSheetChips() {
   const list = document.getElementById('sheet-list');
+  const noMsg = document.getElementById('no-sheets-msg');
   list.innerHTML = '';
-  Object.keys(allSheets).forEach(name => {
+  const matched = Object.keys(allSheets).filter(name => isAllowedSheet(name));
+  if (!matched.length) {
+    noMsg.style.display = 'inline';
+    return;
+  }
+  noMsg.style.display = 'none';
+  // Sort matched sheets in the order of ALLOWED_SHEETS
+  matched.sort((a,b) => {
+    const ai = ALLOWED_SHEETS.findIndex(x => normalise(a).includes(normalise(x)) || normalise(x).includes(normalise(a)));
+    const bi = ALLOWED_SHEETS.findIndex(x => normalise(b).includes(normalise(x)) || normalise(x).includes(normalise(b)));
+    return ai - bi;
+  });
+  matched.forEach(name => {
     const label = document.createElement('label');
-    label.className = 'sheet-chip active';
-    label.innerHTML = `<input type="checkbox" checked value="${name}"><span class="dot"></span>${name}<span style="color:var(--text3);font-size:11px;margin-left:4px;">(${parsedSheets[name].rows.length})</span>`;
+    label.className = 'sheet-chip'; // starts deselected
+    label.innerHTML = `<input type="checkbox" value="${name}"><span class="dot"></span>${name}<span style="color:var(--text3);font-size:11px;margin-left:4px;">(${parsedSheets[name].rows.length})</span>`;
     label.querySelector('input').addEventListener('change', function() { label.classList.toggle('active', this.checked); });
     list.appendChild(label);
   });
 }
+
 function getSelectedSheets() { return [...document.querySelectorAll('#sheet-list input[type=checkbox]:checked')].map(cb=>cb.value); }
 function toggleAllSheets() {
   const all = [...document.querySelectorAll('#sheet-list input[type=checkbox]')];
@@ -466,7 +484,7 @@ function addMultiRow() {
   const id = ++multiRowCount;
   const row = document.createElement('div');
   row.className='multi-row'; row.id='mrow-'+id;
-  row.innerHTML=`<select class="multi-type"><option value="name">Name</option><option value="code">Code</option><option value="url">URL</option></select><input type="text" placeholder="Enter hotel name, code, or URL…"><button class="del-row" onclick="removeMultiRow('mrow-${id}')" title="Remove">×</button>`;
+  row.innerHTML=`<select class="multi-type"><option value="name">Name</option><option value="code">Code</option><option value="url">URL</option></select><input type="text" placeholder="Enter hotel name, property code, or URL…"><button class="del-row" onclick="removeMultiRow('mrow-${id}')" title="Remove">×</button>`;
   document.getElementById('multi-inputs').appendChild(row);
 }
 function removeMultiRow(id) {
@@ -481,33 +499,24 @@ function getMultiTerms() {
 }
 
 // ── Match helpers ─────────────────────────────────────────────
-function matchHero(row, q) { return row._heroValues.filter(h=>h.value.toLowerCase().includes(q)); }
-function matchPush(row, q) { return row._pushValues.filter(p=>p.value.toLowerCase().includes(q)); }
-// Code match: exact case-insensitive match against extracted codes
-function matchCode(row, q) { return row._codes.some(c => c.toLowerCase() === q.toLowerCase() || c.toLowerCase().includes(q.toLowerCase())); }
-// URL match: search anywhere in the raw URL string
-function matchUrl(row, q)  { return row._urls.some(u => u.toLowerCase().includes(q.toLowerCase())); }
+function matchHero(row,q) { return row._heroValues.filter(h=>h.value.toLowerCase().includes(q)); }
+function matchPush(row,q) { return row._pushValues.filter(p=>p.value.toLowerCase().includes(q)); }
+function matchCode(row,q) { return row._codes.some(c=>c.toLowerCase()===q.toLowerCase()||c.toLowerCase().includes(q.toLowerCase())); }
+function matchUrl(row,q)  { return row._urls.some(u=>u.toLowerCase().includes(q.toLowerCase())); }
 
-// ── Build result items ────────────────────────────────────────
-// Each result item: { row, sheet, sheetMeta, isPush, heroMatches, pushMatches, codeHit, urlHit }
 function collectResults(selected, nameQ, codeQ, urlQ) {
   const results = [];
   selected.forEach(sheetName => {
-    const sheet = parsedSheets[sheetName];
-    if (!sheet) return;
+    const sheet = parsedSheets[sheetName]; if (!sheet) return;
     sheet.rows.forEach(row => {
-      const heroMatches = nameQ ? matchHero(row, nameQ) : [];
-      const pushMatches = nameQ ? matchPush(row, nameQ) : [];
-      const codeHit = codeQ ? matchCode(row, codeQ) : false;
-      const urlHit  = urlQ  ? matchUrl(row, urlQ)   : false;
-
-      if (heroMatches.length || codeHit || urlHit) {
-        results.push({ row, sheet: sheetName, sheetMeta: sheet, isPush: false, heroMatches, pushMatches: [], codeHit, urlHit });
-      }
-      // Push mentions only appear when name search is active and found in push cols but NOT a hero/code/url hit
-      if (nameQ && pushMatches.length && !heroMatches.length && !codeHit && !urlHit) {
-        results.push({ row, sheet: sheetName, sheetMeta: sheet, isPush: true, heroMatches: [], pushMatches, codeHit: false, urlHit: false });
-      }
+      const heroMatches = nameQ ? matchHero(row,nameQ) : [];
+      const pushMatches = nameQ ? matchPush(row,nameQ) : [];
+      const codeHit = codeQ ? matchCode(row,codeQ) : false;
+      const urlHit  = urlQ  ? matchUrl(row,urlQ)   : false;
+      if (heroMatches.length||codeHit||urlHit)
+        results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:false, heroMatches, pushMatches:[], codeHit, urlHit });
+      if (nameQ&&pushMatches.length&&!heroMatches.length&&!codeHit&&!urlHit)
+        results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:true, heroMatches:[], pushMatches, codeHit:false, urlHit:false });
     });
   });
   return results;
@@ -515,147 +524,129 @@ function collectResults(selected, nameQ, codeQ, urlQ) {
 
 // ── Single search ─────────────────────────────────────────────
 function searchSingle() {
-  const errEl = document.getElementById('single-error'); errEl.style.display='none';
-  const selected = getSelectedSheets();
-  if (!selected.length) { errEl.style.display='block'; errEl.textContent='Select at least one sheet.'; return; }
-  const nameQ = document.getElementById('s-name').value.trim().toLowerCase();
-  const codeQ = document.getElementById('s-code').value.trim().toLowerCase();
-  const urlQ  = document.getElementById('s-url').value.trim().toLowerCase();
-  if (!nameQ && !codeQ && !urlQ) { errEl.style.display='block'; errEl.textContent='Enter at least one search term.'; return; }
-  const results = collectResults(selected, nameQ, codeQ, urlQ);
-  const parts = [nameQ&&`"${nameQ}"`, codeQ&&`code "${codeQ}"`, urlQ&&`URL "${urlQ}"`].filter(Boolean).join(' + ');
-  document.getElementById('results-label').textContent = `Results for ${parts}`;
-  renderTable(results, false);
+  const errEl=document.getElementById('single-error'); errEl.style.display='none';
+  const selected=getSelectedSheets();
+  if (!selected.length) { errEl.style.display='block'; errEl.textContent='Please select at least one schedule above.'; return; }
+  const nameQ=document.getElementById('s-name').value.trim().toLowerCase();
+  const codeQ=document.getElementById('s-code').value.trim().toLowerCase();
+  const urlQ =document.getElementById('s-url').value.trim().toLowerCase();
+  if (!nameQ&&!codeQ&&!urlQ) { errEl.style.display='block'; errEl.textContent='Enter at least one search term.'; return; }
+  const results=collectResults(selected,nameQ,codeQ,urlQ);
+  const parts=[nameQ&&`"${nameQ}"`,codeQ&&`code "${codeQ}"`,urlQ&&`URL "${urlQ}"`].filter(Boolean).join(' + ');
+  document.getElementById('results-label').textContent=`Results for ${parts}`;
+  renderTable(results,false);
 }
 
 // ── Multi search ──────────────────────────────────────────────
 function searchMulti() {
-  const errEl = document.getElementById('multi-error'); errEl.style.display='none';
-  const selected = getSelectedSheets();
-  if (!selected.length) { errEl.style.display='block'; errEl.textContent='Select at least one sheet.'; return; }
-  const terms = getMultiTerms();
+  const errEl=document.getElementById('multi-error'); errEl.style.display='none';
+  const selected=getSelectedSheets();
+  if (!selected.length) { errEl.style.display='block'; errEl.textContent='Please select at least one schedule above.'; return; }
+  const terms=getMultiTerms();
   if (!terms.length) { errEl.style.display='block'; errEl.textContent='Enter at least one hotel to search.'; return; }
-
-  const groups = terms.map(term => {
-    const nameQ = term.type==='name' ? term.value : '';
-    const codeQ = term.type==='code' ? term.value : '';
-    const urlQ  = term.type==='url'  ? term.value : '';
-    return { term, results: collectResults(selected, nameQ, codeQ, urlQ) };
+  const groups=terms.map(term => {
+    const nameQ=term.type==='name'?term.value:'';
+    const codeQ=term.type==='code'?term.value:'';
+    const urlQ =term.type==='url' ?term.value:'';
+    return { term, results:collectResults(selected,nameQ,codeQ,urlQ) };
   });
-
-  const flat = [];
+  const flat=[];
   groups.forEach(g => {
-    const heroCount = g.results.filter(r=>!r.isPush).length;
-    const pushCount = g.results.filter(r=> r.isPush).length;
-    const sub = [heroCount&&`${heroCount} hero send${heroCount!==1?'s':''}`, pushCount&&`${pushCount} push mention${pushCount!==1?'s':''}`].filter(Boolean).join(' · ') || 'No results';
+    const heroCount=g.results.filter(r=>!r.isPush).length;
+    const pushCount=g.results.filter(r=> r.isPush).length;
+    const sub=[heroCount&&`${heroCount} hero send${heroCount!==1?'s':''}`,pushCount&&`${pushCount} push mention${pushCount!==1?'s':''}`].filter(Boolean).join(' · ')||'No results';
     flat.push({ isGroupHeader:true, label:g.term.value, subLabel:sub });
-    g.results.forEach(r => flat.push({ ...r, isGroupHeader:false }));
+    g.results.forEach(r=>flat.push({...r,isGroupHeader:false}));
   });
-
-  const totalHero  = groups.reduce((a,g) => a + g.results.filter(r=>!r.isPush).length, 0);
-  const totalPush  = groups.reduce((a,g) => a + g.results.filter(r=> r.isPush).length, 0);
-  const hotelsFound = groups.filter(g => g.results.some(r=>!r.isPush)).length;
-  document.getElementById('results-label').textContent = `Results for ${terms.length} hotel${terms.length!==1?'s':''}`;
-  renderTable(flat, true, totalHero, totalPush, hotelsFound);
+  const totalHero =groups.reduce((a,g)=>a+g.results.filter(r=>!r.isPush).length,0);
+  const totalPush =groups.reduce((a,g)=>a+g.results.filter(r=> r.isPush).length,0);
+  const hotelsFound=groups.filter(g=>g.results.some(r=>!r.isPush)).length;
+  document.getElementById('results-label').textContent=`Results for ${terms.length} hotel${terms.length!==1?'s':''}`;
+  renderTable(flat,true,totalHero,totalPush,hotelsFound);
 }
 
 // ── Show all ──────────────────────────────────────────────────
 function showAll() {
-  const selected = getSelectedSheets(); if (!selected.length) return;
-  const results = [];
+  const selected=getSelectedSheets(); if (!selected.length) return;
+  const results=[];
   selected.forEach(sheetName => {
-    const sheet = parsedSheets[sheetName];
+    const sheet=parsedSheets[sheetName];
     sheet.rows.filter(r=>r._heroValues.length).forEach(row => {
       results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:false, heroMatches:row._heroValues, pushMatches:[], codeHit:false, urlHit:false });
     });
   });
-  document.getElementById('results-label').textContent = 'All sends';
-  renderTable(results, false);
+  document.getElementById('results-label').textContent='All sends';
+  renderTable(results,false);
 }
 
 // ── Render ────────────────────────────────────────────────────
-function renderTable(items, isMulti, totalHeroOv, totalPushOv, hotelsOv) {
-  const body = document.getElementById('results-body');
-  body.innerHTML = '';
-  let heroCount=0, pushCount=0;
-  const allDates=[], allRegions=new Set();
+function renderTable(items,isMulti,totalHeroOv,totalPushOv,hotelsOv) {
+  const body=document.getElementById('results-body');
+  body.innerHTML='';
+  let heroCount=0,pushCount=0;
+  const allDates=[],allRegions=new Set();
 
-  if (!items.length || (items.length===1 && items[0].isGroupHeader)) {
-    body.innerHTML = `<tr><td colspan="6" class="empty-state">No matches found.</td></tr>`;
+  if (!items.length||(items.length===1&&items[0].isGroupHeader)) {
+    body.innerHTML=`<tr><td colspan="6" class="empty-state">No matches found. Try a different search term.</td></tr>`;
   } else {
     items.forEach(item => {
       if (item.isGroupHeader) {
-        const tr = document.createElement('tr'); tr.className='group-header';
+        const tr=document.createElement('tr'); tr.className='group-header';
         tr.innerHTML=`<td colspan="6"><span class="gh-name">${item.label}</span><span class="gh-count">${item.subLabel}</span></td>`;
         body.appendChild(tr); return;
       }
-
-      const { row, sheet, isPush, heroMatches, pushMatches, codeHit, urlHit } = item;
+      const {row,sheet,isPush,heroMatches,pushMatches,codeHit,urlHit}=item;
       if (isPush) pushCount++; else heroCount++;
       if (row.dateVal)   allDates.push(row.dateVal);
       if (row.regionVal) allRegions.add(row.regionVal);
 
-      // ── Position / type cell ──────────────────────────────
       let posHtml;
       if (!isPush) {
-        // Hero position badges
         posHtml = heroMatches.length
-          ? heroMatches.map(h => `<span class="hero-badge ${heroCls(h.num)}">${h.colName}</span>`).join('<br>')
+          ? heroMatches.map(h=>`<span class="hero-badge ${heroCls(h.num)}">${h.colName}</span>`).join('<br>')
           : codeHit ? `<span class="hero-badge h1">Code match</span>`
           : urlHit  ? `<span class="hero-badge h2">URL match</span>`
           : '—';
       } else {
-        posHtml = `<span class="push-type-badge">Push</span>`;
+        posHtml=`<span class="push-type-badge">Push</span>`;
       }
 
-      // ── Column & content cell ─────────────────────────────
-      // For hero rows: show the matched hero column name + the cell value
-      // For push rows: show push column name + cell value (this is the key new info)
       let colContentHtml;
-      if (!isPush && heroMatches.length) {
-        colContentHtml = heroMatches.map(h =>
-          `<span style="font-size:11px;color:var(--text3);">${h.colName}:</span> <span style="font-size:12px;">${h.value}</span>`
-        ).join('<br>');
-      } else if (isPush && pushMatches.length) {
-        colContentHtml = pushMatches.map(p =>
-          `<span class="push-col-name">${p.colName}</span><span class="push-cell-value">${p.value}</span>`
-        ).join('<br>');
-      } else {
-        colContentHtml = '—';
-      }
+      if (!isPush&&heroMatches.length) {
+        colContentHtml=heroMatches.map(h=>`<span style="font-size:11px;color:var(--text3);font-weight:600;">${h.colName}:</span> <span style="font-size:12px;">${h.value}</span>`).join('<br>');
+      } else if (isPush&&pushMatches.length) {
+        colContentHtml=pushMatches.map(p=>`<span class="push-col-name">${p.colName}</span><span class="push-cell-value">${p.value}</span>`).join('<br>');
+      } else { colContentHtml='—'; }
 
-      // ── Hotel name cell ───────────────────────────────────
       let hotelHtml;
-      if (!isPush && heroMatches.length) {
-        hotelHtml = heroMatches.map(h=>h.value).join(', ');
-      } else if (isPush && pushMatches.length) {
-        hotelHtml = `<span style="color:var(--text2);font-style:italic;">${pushMatches.map(p=>p.value).join(', ')}</span>`;
-      } else {
-        hotelHtml = '—';
-      }
+      if (!isPush&&heroMatches.length) {
+        hotelHtml=heroMatches.map(h=>h.value).join(', ');
+      } else if (isPush&&pushMatches.length) {
+        hotelHtml=`<span style="color:var(--text2);font-style:italic;">${pushMatches.map(p=>p.value).join(', ')}</span>`;
+      } else { hotelHtml='—'; }
 
-      const tr = document.createElement('tr');
-      if (isPush) tr.className = 'push-row';
-      tr.innerHTML = `
+      const tr=document.createElement('tr');
+      if (isPush) tr.className='push-row';
+      tr.innerHTML=`
         <td><span class="sheet-pill">${sheet}</span></td>
-        <td>${row.dateVal || '—'}</td>
+        <td>${row.dateVal||'—'}</td>
         <td>${hotelHtml}</td>
         <td>${posHtml}</td>
         <td>${colContentHtml}</td>
-        <td>${row.regionVal || '—'}</td>
+        <td>${row.regionVal||'—'}</td>
       `;
       body.appendChild(tr);
     });
   }
 
   allDates.sort();
-  document.getElementById('s-total').textContent   = totalHeroOv  !== undefined ? totalHeroOv  : heroCount;
-  document.getElementById('s-hotels').textContent  = isMulti ? (hotelsOv !== undefined ? hotelsOv : '—') : '—';
-  document.getElementById('s-pushes').textContent  = totalPushOv  !== undefined ? totalPushOv  : pushCount;
-  document.getElementById('s-regions').textContent = allRegions.size ? [...allRegions].join(', ') : '—';
-  const tot = (totalHeroOv!==undefined?totalHeroOv:heroCount) + (totalPushOv!==undefined?totalPushOv:pushCount);
-  document.getElementById('count-badge').textContent = `${tot} result${tot!==1?'s':''}`;
-  document.getElementById('results-area').style.display = 'block';
+  document.getElementById('s-total').textContent  = totalHeroOv!==undefined?totalHeroOv:heroCount;
+  document.getElementById('s-hotels').textContent = isMulti?(hotelsOv!==undefined?hotelsOv:'—'):'—';
+  document.getElementById('s-pushes').textContent = totalPushOv!==undefined?totalPushOv:pushCount;
+  document.getElementById('s-regions').textContent= allRegions.size?[...allRegions].join(', '):'—';
+  const tot=(totalHeroOv!==undefined?totalHeroOv:heroCount)+(totalPushOv!==undefined?totalPushOv:pushCount);
+  document.getElementById('count-badge').textContent=`${tot} result${tot!==1?'s':''}`;
+  document.getElementById('results-area').style.display='block';
 }
 
 // ── Reset ─────────────────────────────────────────────────────
@@ -667,8 +658,6 @@ function resetTool() {
   document.getElementById('app-area').style.display='none';
   document.getElementById('results-area').style.display='none';
   document.getElementById('upload-error').style.display='none';
-  document.getElementById('hero-info').style.display='none';
-  document.getElementById('push-info').style.display='none';
   setMode('single');
 }
 
