@@ -235,18 +235,10 @@
 
       <!-- Single -->
       <div id="single-mode">
-        <div class="single-grid">
+        <div style="margin-bottom:1.25rem;">
           <div class="search-field">
-            <label>Hotel / property name <span class="lbadge badge-hero">hero cols only</span></label>
-            <input id="s-name" type="text" placeholder="e.g. Nala Resort">
-          </div>
-          <div class="search-field">
-            <label>Property code <span class="lbadge badge-code">from URL</span></label>
-            <input id="s-code" type="text" placeholder="e.g. 006RF00000Mg67ZYAR">
-          </div>
-          <div class="search-field">
-            <label>Luxury Escapes URL <span class="lbadge badge-url">link</span></label>
-            <input id="s-url" type="text" placeholder="e.g. luxuryescapes.com/offer/…">
+            <label>Hotel / property name</label>
+            <input id="s-name" type="text" placeholder="e.g. Nala Resort" style="max-width:420px;">
           </div>
         </div>
         <div class="btn-row">
@@ -254,7 +246,7 @@
           <button class="btn-secondary" onclick="showAll()">Show all</button>
           <button class="btn-secondary" onclick="resetTool()">Change file</button>
         </div>
-        <div class="search-hint">Name searches Hero 1–6 columns only. Push mentions are listed separately with column name and content.</div>
+        <div class="search-hint">Searches Hero 1–6 columns only. Push mentions are listed separately.</div>
         <div id="single-error" class="error-msg" style="display:none;"></div>
       </div>
 
@@ -610,23 +602,9 @@ function searchSingle() {
   const selected=getSelectedSheets();
   if (!selected.length) { errEl.style.display='block'; errEl.textContent='Please select at least one schedule above.'; return; }
   const nameQ=document.getElementById('s-name').value.trim().toLowerCase();
-  const codeQ=document.getElementById('s-code').value.trim().toLowerCase();
-  const urlQ =document.getElementById('s-url').value.trim().toLowerCase();
-  if (!nameQ&&!codeQ&&!urlQ) { errEl.style.display='block'; errEl.textContent='Enter at least one search term.'; return; }
-
-  // Resolve what name we'll actually search by
-  let displayTerm = nameQ || codeQ || urlQ;
-  if (!nameQ && codeQ) {
-    const resolved = resolveNameFromCode(codeQ, selected);
-    if (resolved) displayTerm = `${codeQ} → "${resolved}"`;
-  }
-  if (!nameQ && urlQ) {
-    const resolved = resolveNameFromUrl(urlQ, selected);
-    if (resolved) displayTerm = `URL → "${resolved.name}"`;
-  }
-
-  const results=collectResults(selected,nameQ,codeQ,urlQ);
-  document.getElementById('results-label').textContent=`Results for ${displayTerm}`;
+  if (!nameQ) { errEl.style.display='block'; errEl.textContent='Enter a hotel name to search.'; return; }
+  const results=collectResults(selected,nameQ,'','');
+  document.getElementById('results-label').textContent=`Results for "${nameQ}"`;
   renderTable(results,false);
 }
 
@@ -746,7 +724,7 @@ function renderTable(items,isMulti,totalHeroOv,totalPushOv,hotelsOv) {
 function resetTool() {
   allSheets={}; parsedSheets={};
   document.getElementById('file-input').value='';
-  ['s-name','s-code','s-url'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('s-name').value='';
   document.getElementById('upload-area').style.display='block';
   document.getElementById('app-area').style.display='none';
   document.getElementById('results-area').style.display='none';
