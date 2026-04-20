@@ -524,15 +524,15 @@ function getMultiTerms() {
 
 // ── Match helpers ─────────────────────────────────────────────
 // Split query into meaningful words (ignore short noise words)
-const NOISE = new Set(['the','and','of','by','at','in','a','an','de','du','le','la','les','el']);
+const NOISE = new Set(['the','and','of','by','at','in','on','a','an','de','du','le','la','les','el','&']);
 function queryWords(q) {
   return q.toLowerCase().split(/\s+/).filter(w => w.length >= 2 && !NOISE.has(w));
 }
 
 // Fuzzy word match: all query words must appear somewhere in the cell value
 // "Stamford Grand Adelaide" matches "Stamford Grand Hotel Adelaide" ✓
-// "Stamford Grand Adelaide" matches "Stamford Grand Hotel" ✗ (missing Adelaide)
-// Falls back to: if 80%+ of words match, still include as a near-match
+// "Mantra on Salt Beach" matches "Mantra Salt" ✓ (first word + another key word match)
+// Falls back to: if 75%+ of words match, still include as a near-match
 function fuzzyMatch(cellValue, q) {
   const cell = cellValue.toLowerCase();
   // Fast path: exact contains
@@ -545,6 +545,10 @@ function fuzzyMatch(cellValue, q) {
   if (score === 1) return { match: true, score: 1 };
   // Near match: 75%+ words present (e.g. 3 out of 4 words)
   if (score >= 0.75 && matched.length >= 2) return { match: true, score };
+  // Brand match: first word (brand name) matches + at least one other word matches
+  // e.g. "Mantra on Salt Beach" → "Mantra Salt" — "Mantra" + "Salt" both present
+  const firstWord = words[0];
+  if (cell.includes(firstWord) && matched.length >= 2) return { match: true, score };
   return { match: false, score };
 }
 
