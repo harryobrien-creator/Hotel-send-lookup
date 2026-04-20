@@ -175,7 +175,13 @@
 
   .sheet-pill { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); font-weight: 500; }
   .code-text { font-size: 12px; color: var(--purple-bright); font-weight: 700; }
-  .empty-state { text-align: center; padding: 3rem; color: var(--text3); font-size: 14px; }
+  .btn-export { height:34px; padding:0 14px; font-size:12px; font-family:'DM Sans',sans-serif; font-weight:600; background:var(--green-bright); color:white; border:none; border-radius:var(--radius); cursor:pointer; transition:all 0.15s; box-shadow:0 2px 5px rgba(26,122,74,0.25); }
+  .btn-export:hover { background:var(--green); }
+  .quick-date-btn { height:32px; padding:0 12px; font-size:12px; font-family:'DM Sans',sans-serif; font-weight:500; background:var(--surface2); color:var(--text2); border:1.5px solid var(--border2); border-radius:99px; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+  .quick-date-btn:hover { border-color:var(--blue-bright); color:var(--blue); background:var(--blue-dim); }
+  input[type=date]:focus { outline:none; border-color:var(--blue-bright); box-shadow:0 0 0 3px rgba(34,114,204,0.12); }
+  .del-result-btn { width:26px; height:26px; border-radius:50%; border:1.5px solid var(--border2); background:transparent; color:var(--text3); cursor:pointer; font-size:15px; line-height:1; display:flex; align-items:center; justify-content:center; transition:all 0.15s; flex-shrink:0; }
+  .del-result-btn:hover { border-color:var(--red); color:var(--red); background:var(--red-dim); }
 
   @media (max-width: 700px) {
     .single-grid { grid-template-columns: 1fr; }
@@ -223,6 +229,28 @@
       <div class="sheet-footer">
         <span class="toggle-link" onclick="toggleAllSheets()">Select all / none</span>
         <span class="no-sheets-msg" id="no-sheets-msg" style="display:none;">No matching schedule sheets found in this file</span>
+      </div>
+    </div>
+
+    <!-- Date range -->
+    <div class="sheet-section" style="margin-bottom:1.25rem;">
+      <span class="section-label">Date range <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3);font-size:11px;">— optional, leave blank to search all dates</span></span>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <div class="search-field" style="flex-direction:row;align-items:center;gap:8px;">
+          <label style="white-space:nowrap;margin:0;">From</label>
+          <input type="date" id="date-from" style="height:36px;padding:0 10px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--surface2);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius);transition:border-color 0.15s;width:160px;">
+        </div>
+        <div class="search-field" style="flex-direction:row;align-items:center;gap:8px;">
+          <label style="white-space:nowrap;margin:0;">To</label>
+          <input type="date" id="date-to" style="height:36px;padding:0 10px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--surface2);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius);transition:border-color 0.15s;width:160px;">
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="setQuickDate('month')" class="quick-date-btn">This month</button>
+          <button onclick="setQuickDate('last')" class="quick-date-btn">Last month</button>
+          <button onclick="setQuickDate('quarter')" class="quick-date-btn">This quarter</button>
+          <button onclick="setQuickDate('year')" class="quick-date-btn">This year</button>
+          <button onclick="clearDates()" class="quick-date-btn" style="color:var(--text3);">Clear</button>
+        </div>
       </div>
     </div>
 
@@ -274,7 +302,10 @@
       </div>
       <div class="results-header">
         <span class="results-label" id="results-label">Results</span>
-        <span class="count-badge" id="count-badge">0 matches</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="count-badge" id="count-badge">0 matches</span>
+          <button class="btn-export" onclick="exportToExcel()">Export to Excel</button>
+        </div>
       </div>
       <div class="table-wrap">
         <table>
@@ -282,10 +313,11 @@
             <tr>
               <th style="width:10%">Schedule</th>
               <th style="width:12%">Send date</th>
-              <th style="width:22%">Hotel / property</th>
-              <th style="width:14%">Position / type</th>
-              <th style="width:28%">Column &amp; content</th>
-              <th style="width:14%">Region</th>
+              <th style="width:20%">Hotel / property</th>
+              <th style="width:13%">Position / type</th>
+              <th style="width:26%">Column &amp; content</th>
+              <th style="width:13%">Region</th>
+              <th style="width:6%"></th>
             </tr>
           </thead>
           <tbody id="results-body"></tbody>
@@ -476,7 +508,7 @@ function addMultiRow() {
   const id = ++multiRowCount;
   const row = document.createElement('div');
   row.className='multi-row'; row.id='mrow-'+id;
-  row.innerHTML=`<select class="multi-type"><option value="name">Name</option><option value="code">Code</option><option value="url">URL</option></select><input type="text" placeholder="Enter hotel name, property code, or URL…"><button class="del-row" onclick="removeMultiRow('mrow-${id}')" title="Remove">×</button>`;
+  row.innerHTML=`<input type="text" placeholder="Hotel name e.g. Nala Resort" style="flex:1;height:40px;padding:0 14px;font-size:13px;font-family:\'DM Sans\',sans-serif;background:var(--surface2);color:var(--text);border:1.5px solid var(--border2);border-radius:var(--radius);transition:all 0.15s;"><button class="del-row" onclick="removeMultiRow('mrow-${id}')" title="Remove">×</button>`;
   document.getElementById('multi-inputs').appendChild(row);
 }
 function removeMultiRow(id) {
@@ -486,13 +518,42 @@ function removeMultiRow(id) {
 function clearMulti() { initMultiRows(); document.getElementById('results-area').style.display='none'; }
 function getMultiTerms() {
   return [...document.querySelectorAll('#multi-inputs .multi-row')]
-    .map(r=>({type:r.querySelector('select').value, value:r.querySelector('input').value.trim().toLowerCase()}))
+    .map(r=>({ type:'name', value:r.querySelector('input').value.trim().toLowerCase() }))
     .filter(t=>t.value);
 }
 
 // ── Match helpers ─────────────────────────────────────────────
-function matchHero(row,q) { return row._heroValues.filter(h=>h.value.toLowerCase().includes(q)); }
-function matchPush(row,q) { return row._pushValues.filter(p=>p.value.toLowerCase().includes(q)); }
+// Split query into meaningful words (ignore short noise words)
+const NOISE = new Set(['the','and','of','by','at','in','a','an','de','du','le','la','les','el']);
+function queryWords(q) {
+  return q.toLowerCase().split(/\s+/).filter(w => w.length >= 2 && !NOISE.has(w));
+}
+
+// Fuzzy word match: all query words must appear somewhere in the cell value
+// "Stamford Grand Adelaide" matches "Stamford Grand Hotel Adelaide" ✓
+// "Stamford Grand Adelaide" matches "Stamford Grand Hotel" ✗ (missing Adelaide)
+// Falls back to: if 80%+ of words match, still include as a near-match
+function fuzzyMatch(cellValue, q) {
+  const cell = cellValue.toLowerCase();
+  // Fast path: exact contains
+  if (cell.includes(q)) return { match: true, score: 1 };
+  const words = queryWords(q);
+  if (!words.length) return { match: false, score: 0 };
+  const matched = words.filter(w => cell.includes(w));
+  const score = matched.length / words.length;
+  // Full match: all words present
+  if (score === 1) return { match: true, score: 1 };
+  // Near match: 75%+ words present (e.g. 3 out of 4 words)
+  if (score >= 0.75 && matched.length >= 2) return { match: true, score };
+  return { match: false, score };
+}
+
+function matchHero(row, q) {
+  return row._heroValues.filter(h => fuzzyMatch(h.value, q).match);
+}
+function matchPush(row, q) {
+  return row._pushValues.filter(p => fuzzyMatch(p.value, q).match);
+}
 function matchCode(row,q) { return row._codes.some(c=>c.toLowerCase()===q.toLowerCase()||c.toLowerCase().includes(q.toLowerCase())); }
 function matchUrl(row,q)  { return row._urls.some(u=>u.toLowerCase().includes(q.toLowerCase())); }
 
@@ -546,51 +607,110 @@ function resolveNameFromUrl(urlQ, selected) {
   return terms.length ? { name: terms[0], method: 'slug', allTerms: terms } : null;
 }
 
+// ── Date range helpers ────────────────────────────────────────
+function getDateRange() {
+  const from = document.getElementById('date-from').value; // yyyy-mm-dd
+  const to   = document.getElementById('date-to').value;
+  return {
+    from: from ? new Date(from + 'T00:00:00') : null,
+    to:   to   ? new Date(to   + 'T23:59:59') : null
+  };
+}
+
+// Parse a date string from Excel — handles dd/mm/yyyy, mm/dd/yyyy, yyyy-mm-dd,
+// "Monday, March 9, 2026", "9 March 2026", ISO, and Excel serial numbers
+function parseDate(str) {
+  if (!str) return null;
+  str = str.trim();
+  if (!str || str === '—') return null;
+
+  // Excel serial number
+  if (/^\d{4,5}$/.test(str)) {
+    const d = new Date((parseInt(str) - 25569) * 86400 * 1000);
+    return isNaN(d) ? null : d;
+  }
+  // yyyy-mm-dd
+  let m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  // dd/mm/yyyy
+  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return new Date(+m[3], +m[2]-1, +m[1]);
+  // "Monday, March 9, 2026" or "March 9, 2026"
+  m = str.match(/(\w+ \d{1,2},?\s*\d{4})/);
+  if (m) { const d = new Date(m[1]); if (!isNaN(d)) return d; }
+  // Fallback
+  const d = new Date(str);
+  return isNaN(d) ? null : d;
+}
+
+function rowInDateRange(row, from, to) {
+  if (!from && !to) return true;
+  const d = parseDate(row.dateVal);
+  if (!d) return true; // can't parse — include it
+  if (from && d < from) return false;
+  if (to   && d > to)   return false;
+  return true;
+}
+
+function setQuickDate(period) {
+  const now = new Date();
+  let from, to;
+  if (period === 'month') {
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+    to   = new Date(now.getFullYear(), now.getMonth()+1, 0);
+  } else if (period === 'last') {
+    from = new Date(now.getFullYear(), now.getMonth()-1, 1);
+    to   = new Date(now.getFullYear(), now.getMonth(), 0);
+  } else if (period === 'quarter') {
+    const q = Math.floor(now.getMonth()/3);
+    from = new Date(now.getFullYear(), q*3, 1);
+    to   = new Date(now.getFullYear(), q*3+3, 0);
+  } else if (period === 'year') {
+    from = new Date(now.getFullYear(), 0, 1);
+    to   = new Date(now.getFullYear(), 11, 31);
+  }
+  const fmt = d => d.toISOString().slice(0,10);
+  document.getElementById('date-from').value = fmt(from);
+  document.getElementById('date-to').value   = fmt(to);
+}
+
+function clearDates() {
+  document.getElementById('date-from').value = '';
+  document.getElementById('date-to').value   = '';
+}
+
 function collectResults(selected, nameQ, codeQ, urlQ) {
   const results = [];
-
-  // Resolve code → name if no nameQ provided
+  const { from, to } = getDateRange();
   let resolvedName = nameQ;
-  let resolvedFrom = nameQ ? 'name' : null;
-
-  if (!resolvedName && codeQ) {
-    const n = resolveNameFromCode(codeQ, selected);
-    if (n) { resolvedName = n; resolvedFrom = 'code'; }
-  }
-
-  if (!resolvedName && urlQ) {
-    const r = resolveNameFromUrl(urlQ, selected);
-    if (r) { resolvedName = r.name; resolvedFrom = 'url'; }
-  }
-
-  // If we resolved a name from code/url, search hero cols by that name
-  // Also keep original code/url matching as a fallback for rows where name differs
+  if (!resolvedName && codeQ) { const n = resolveNameFromCode(codeQ, selected); if (n) resolvedName = n; }
+  if (!resolvedName && urlQ)  { const r = resolveNameFromUrl(urlQ, selected);   if (r) resolvedName = r.name; }
   const effectiveNameQ = resolvedName || '';
 
   selected.forEach(sheetName => {
     const sheet = parsedSheets[sheetName]; if (!sheet) return;
     sheet.rows.forEach(row => {
+      // Apply date range filter first
+      if (!rowInDateRange(row, from, to)) return;
       const heroMatches = effectiveNameQ ? matchHero(row, effectiveNameQ) : [];
       const pushMatches = effectiveNameQ ? matchPush(row, effectiveNameQ) : [];
-
-      // Fallback direct code/url match (catches rows that might have a different name spelling)
       const codeHit = codeQ ? matchCode(row, codeQ) : false;
       const urlHit  = urlQ  ? matchUrl(row, urlQ)   : false;
-
-      // For a row to be a hero result: name match in hero cols, OR direct code/url hit
       if (heroMatches.length || codeHit || urlHit) {
-        // Avoid duplicate if already matched by name
-        results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:false, heroMatches, pushMatches:[], codeHit, urlHit, resolvedFrom });
-      } else if (effectiveNameQ && pushMatches.length) {
-        results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:true, heroMatches:[], pushMatches, codeHit:false, urlHit:false, resolvedFrom });
+        results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:false, heroMatches, pushMatches:[], codeHit, urlHit });
+      }
+      if (effectiveNameQ && pushMatches.length) {
+        results.push({ row, sheet:sheetName, sheetMeta:sheet, isPush:true, heroMatches:[], pushMatches, codeHit:false, urlHit:false });
       }
     });
   });
 
-  // Deduplicate (same row could match by both name and code)
-  const seen = new Set();
+  const seenHero = new Set(), seenPush = new Set();
   return results.filter(r => {
-    const key = r.sheet + '|' + r.row.dateVal + '|' + (r.row._heroValues.map(h=>h.value).join(','));
+    const key = r.sheet + '|' + r.row.dateVal + '|' + (r.isPush
+      ? r.row._pushValues.map(p=>p.value).join(',')
+      : r.row._heroValues.map(h=>h.value).join(','));
+    const seen = r.isPush ? seenPush : seenHero;
     if (seen.has(key)) return false;
     seen.add(key); return true;
   });
@@ -616,21 +736,20 @@ function searchMulti() {
   const terms=getMultiTerms();
   if (!terms.length) { errEl.style.display='block'; errEl.textContent='Enter at least one hotel to search.'; return; }
   const groups=terms.map(term => {
-    const nameQ=term.type==='name'?term.value:'';
-    const codeQ=term.type==='code'?term.value:'';
-    const urlQ =term.type==='url' ?term.value:'';
-    return { term, results:collectResults(selected,nameQ,codeQ,urlQ) };
+    const nameQ=term.value; // multi mode is name-only now
+    return { term, results:collectResults(selected,nameQ,'','') };
   });
   const flat=[];
   groups.forEach(g => {
     const heroCount=g.results.filter(r=>!r.isPush).length;
     const pushCount=g.results.filter(r=> r.isPush).length;
-    const sub=[heroCount&&`${heroCount} hero send${heroCount!==1?'s':''}`,pushCount&&`${pushCount} push mention${pushCount!==1?'s':''}`].filter(Boolean).join(' · ')||'No results';
+    const parts=[heroCount&&`${heroCount} hero send${heroCount!==1?'s':''}`, pushCount&&`${pushCount} push mention${pushCount!==1?'s':''}`].filter(Boolean);
+    const sub=parts.length ? parts.join(' · ') : 'No results found';
     flat.push({ isGroupHeader:true, label:g.term.value, subLabel:sub });
     g.results.forEach(r=>flat.push({...r,isGroupHeader:false}));
   });
-  const totalHero =groups.reduce((a,g)=>a+g.results.filter(r=>!r.isPush).length,0);
-  const totalPush =groups.reduce((a,g)=>a+g.results.filter(r=> r.isPush).length,0);
+  const totalHero=groups.reduce((a,g)=>a+g.results.filter(r=>!r.isPush).length,0);
+  const totalPush=groups.reduce((a,g)=>a+g.results.filter(r=> r.isPush).length,0);
   const hotelsFound=groups.filter(g=>g.results.some(r=>!r.isPush)).length;
   document.getElementById('results-label').textContent=`Results for ${terms.length} hotel${terms.length!==1?'s':''}`;
   renderTable(flat,true,totalHero,totalPush,hotelsFound);
@@ -658,12 +777,12 @@ function renderTable(items,isMulti,totalHeroOv,totalPushOv,hotelsOv) {
   const allDates=[],allRegions=new Set();
 
   if (!items.length||(items.length===1&&items[0].isGroupHeader)) {
-    body.innerHTML=`<tr><td colspan="6" class="empty-state">No matches found. Try a different search term.</td></tr>`;
+    body.innerHTML=`<tr><td colspan="7" class="empty-state">No matches found. Try a different search term.</td></tr>`;
   } else {
     items.forEach(item => {
       if (item.isGroupHeader) {
         const tr=document.createElement('tr'); tr.className='group-header';
-        tr.innerHTML=`<td colspan="6"><span class="gh-name">${item.label}</span><span class="gh-count">${item.subLabel}</span></td>`;
+        tr.innerHTML=`<td colspan="7"><span class="gh-name">${item.label}</span><span class="gh-count">${item.subLabel}</span></td>`;
         body.appendChild(tr); return;
       }
       const {row,sheet,isPush,heroMatches,pushMatches,codeHit,urlHit}=item;
@@ -698,6 +817,8 @@ function renderTable(items,isMulti,totalHeroOv,totalPushOv,hotelsOv) {
 
       const tr=document.createElement('tr');
       if (isPush) tr.className='push-row';
+      const rowId = 'r-' + Math.random().toString(36).slice(2,9);
+      tr.id = rowId;
       tr.innerHTML=`
         <td><span class="sheet-pill">${sheet}</span></td>
         <td>${row.dateVal||'—'}</td>
@@ -705,6 +826,7 @@ function renderTable(items,isMulti,totalHeroOv,totalPushOv,hotelsOv) {
         <td>${posHtml}</td>
         <td>${colContentHtml}</td>
         <td>${row.regionVal||'—'}</td>
+        <td style="text-align:center;"><button class="del-result-btn" onclick="deleteRow('${rowId}')" title="Remove this row">×</button></td>
       `;
       body.appendChild(tr);
     });
@@ -720,11 +842,104 @@ function renderTable(items,isMulti,totalHeroOv,totalPushOv,hotelsOv) {
   document.getElementById('results-area').style.display='block';
 }
 
-// ── Reset ─────────────────────────────────────────────────────
+// ── Delete row ────────────────────────────────────────────────
+function deleteRow(rowId) {
+  const tr = document.getElementById(rowId);
+  if (!tr) return;
+  tr.style.transition = 'opacity 0.2s';
+  tr.style.opacity = '0';
+  setTimeout(() => {
+    tr.remove();
+    updateStatsFromDom();
+  }, 200);
+}
+
+function updateStatsFromDom() {
+  const body = document.getElementById('results-body');
+  const allRows = [...body.querySelectorAll('tr')];
+  let hero = 0, push = 0;
+  const regions = new Set();
+
+  // Update group header counts
+  let currentHeader = null;
+  let groupHero = 0, groupPush = 0;
+  const flush = () => {
+    if (!currentHeader) return;
+    const parts = [groupHero && `${groupHero} hero send${groupHero!==1?'s':''}`, groupPush && `${groupPush} push mention${groupPush!==1?'s':''}`].filter(Boolean);
+    const sub = parts.length ? parts.join(' · ') : 'No results';
+    const countEl = currentHeader.querySelector('.gh-count');
+    if (countEl) countEl.textContent = sub;
+  };
+
+  allRows.forEach(tr => {
+    if (tr.classList.contains('group-header')) {
+      flush();
+      currentHeader = tr; groupHero = 0; groupPush = 0;
+    } else if (tr.id) {
+      const isPush = tr.classList.contains('push-row');
+      if (isPush) { push++; groupPush++; } else { hero++; groupHero++; }
+      const cells = tr.querySelectorAll('td');
+      if (cells[5]) { const r = cells[5].textContent.trim(); if (r && r !== '—') regions.add(r); }
+    }
+  });
+  flush();
+
+  const tot = hero + push;
+  document.getElementById('s-total').textContent   = hero;
+  document.getElementById('s-pushes').textContent  = push;
+  document.getElementById('s-regions').textContent = regions.size ? [...regions].join(', ') : '—';
+  document.getElementById('count-badge').textContent = `${tot} result${tot!==1?'s':''}`;
+  if (tot === 0) {
+    body.innerHTML = `<tr><td colspan="7" class="empty-state">All rows removed. Run a new search.</td></tr>`;
+  }
+}
+
+// ── Export to Excel ───────────────────────────────────────────
+function exportToExcel() {
+  const body = document.getElementById('results-body');
+  const rows = [...body.querySelectorAll('tr:not(.group-header)')];
+  if (!rows.length) return;
+
+  const label = document.getElementById('results-label').textContent;
+  const headers = ['Schedule', 'Send Date', 'Hotel / Property', 'Position / Type', 'Column & Content', 'Region', 'Type'];
+  const data = [headers];
+
+  rows.forEach(tr => {
+    if (!tr.id) return;
+    const cells = tr.querySelectorAll('td');
+    const isPush = tr.classList.contains('push-row');
+    const row = [
+      cells[0] ? cells[0].textContent.trim() : '',
+      cells[1] ? cells[1].textContent.trim() : '',
+      cells[2] ? cells[2].textContent.trim() : '',
+      cells[3] ? cells[3].textContent.trim() : '',
+      cells[4] ? cells[4].textContent.trim() : '',
+      cells[5] ? cells[5].textContent.trim() : '',
+      isPush ? 'Push mention' : 'Hero send',
+    ];
+    data.push(row);
+  });
+
+  // Build CSV
+  const csv = data.map(row =>
+    row.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(',')
+  ).join('\r\n');
+
+  // Create filename from search label
+  const safeName = label.replace(/[^a-z0-9 ]/gi,'').trim().replace(/\s+/g,'-').substring(0,40);
+  const filename = `hotel-sends-${safeName}-${new Date().toISOString().slice(0,10)}.csv`;
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
 function resetTool() {
   allSheets={}; parsedSheets={};
   document.getElementById('file-input').value='';
   document.getElementById('s-name').value='';
+  clearDates();
   document.getElementById('upload-area').style.display='block';
   document.getElementById('app-area').style.display='none';
   document.getElementById('results-area').style.display='none';
