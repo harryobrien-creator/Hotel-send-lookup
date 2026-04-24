@@ -129,23 +129,22 @@
   .results-label { font-size: 14px; font-weight: 600; }
   .count-badge { font-size: 12px; padding: 4px 12px; border-radius: 99px; background: var(--blue-dim); color: var(--blue); font-weight: 600; }
 
-  /* Filter bar — horizontal pills above table */
-  .filter-bar-wrap { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: 14px 16px; margin-bottom: 10px; display: none; }
+  /* Filter bar — compact horizontal pills above table */
+  .filter-bar-wrap { background: var(--surface2); border-radius: var(--radius); border: 1px solid var(--border2); padding: 10px 14px; margin-bottom: 8px; display: none; }
   .filter-bar-wrap.visible { display: block; }
-  .filter-bar-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .filter-bar-label { font-size: 11px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); white-space: nowrap; }
-  .filter-bar-search { height: 30px; padding: 0 10px; font-size: 12px; font-family: 'DM Sans', sans-serif; background: var(--surface2); color: var(--text); border: 1.5px solid var(--border2); border-radius: 7px; width: 180px; }
+  .filter-bar-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .filter-bar-label { font-size: 11px; font-weight: 600; color: var(--text3); white-space: nowrap; }
+  .filter-bar-search { height: 26px; padding: 0 8px; font-size: 11px; font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text); border: 1.5px solid var(--border2); border-radius: 6px; width: 150px; }
   .filter-bar-search:focus { outline: none; border-color: var(--blue-bright); }
   .filter-bar-search::placeholder { color: var(--text3); }
-  .filter-bar-hint { font-size: 11px; color: var(--text3); }
-  .filter-bar-clear { font-size: 12px; color: var(--blue-bright); cursor: pointer; font-weight: 500; margin-left: auto; white-space: nowrap; }
+  .filter-bar-clear { font-size: 11px; color: var(--blue-bright); cursor: pointer; font-weight: 500; margin-left: auto; white-space: nowrap; }
   .filter-bar-clear:hover { text-decoration: underline; }
-  .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
-  .filter-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; border: 1.5px solid var(--border2); border-radius: 99px; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--text2); background: var(--surface2); transition: all 0.12s; user-select: none; white-space: nowrap; }
+  .filter-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+  .filter-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border: 1.5px solid var(--border2); border-radius: 99px; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--text2); background: var(--surface); transition: all 0.12s; user-select: none; white-space: nowrap; }
   .filter-pill:hover { border-color: var(--blue-bright); color: var(--blue); background: var(--blue-dim); }
   .filter-pill.active { border-color: var(--blue-bright); color: var(--blue); background: var(--blue-dim); font-weight: 600; }
-  .filter-pill .fp-count { font-size: 11px; color: var(--text3); background: var(--surface3); padding: 0 5px; border-radius: 99px; }
-  .filter-pill.active .fp-count { background: rgba(34,114,204,0.15); color: var(--blue); }
+  .filter-pill .fp-count { font-size: 10px; color: var(--text3); }
+  .filter-pill.active .fp-count { color: var(--blue); }
 
   .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: auto; box-shadow: var(--shadow); }
   table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 800px; }
@@ -296,13 +295,12 @@
         </div>
       </div>
 
-      <!-- Filter bar: horizontal multi-select pills above table -->
+      <!-- Filter bar: compact horizontal multi-select pills above table -->
       <div class="filter-bar-wrap" id="filter-bar-wrap">
         <div class="filter-bar-top">
-          <span class="filter-bar-label">Filter by hotel</span>
-          <span class="filter-bar-hint">Click one or more to narrow results</span>
-          <input type="text" class="filter-bar-search" id="filter-bar-search" placeholder="Search hotels…" oninput="filterPillSearch(this.value)">
-          <span class="filter-bar-clear" id="filter-bar-clear" onclick="clearAllFilters()" style="display:none;">Clear filters</span>
+          <span class="filter-bar-label">Filter by offer</span>
+          <input type="text" class="filter-bar-search" id="filter-bar-search" placeholder="Search…" oninput="filterPillSearch(this.value)">
+          <span class="filter-bar-clear" id="filter-bar-clear" onclick="clearAllFilters()" style="display:none;">Clear</span>
         </div>
         <div class="filter-pills" id="filter-pills"></div>
       </div>
@@ -560,18 +558,20 @@ function showAll(){
 
 // ── Filter bar ────────────────────────────────────────────────
 function buildFilterBar(items){
+  // Only count hero-matched hotel names for the pills (not push names)
   const countMap={};
   items.forEach(item=>{
-    if(item.isGroupHeader)return;
-    const names=item.isPush?(item.pushMatches||[]).map(p=>p.value):(item.heroMatches||[]).map(h=>h.value);
-    names.forEach(name=>{if(!name||name==='—')return;countMap[name]=(countMap[name]||0)+1;});
+    if(item.isGroupHeader||item.isPush)return;
+    (item.heroMatches||[]).forEach(h=>{
+      if(!h.value||h.value==='—')return;
+      countMap[h.value]=(countMap[h.value]||0)+1;
+    });
   });
   allPillItems=Object.entries(countMap).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([name,count])=>({name,count}));
   activeFilters=new Set();
   document.getElementById('filter-bar-clear').style.display='none';
   document.getElementById('filter-bar-search').value='';
   const wrap=document.getElementById('filter-bar-wrap');
-  // Only show filter bar if more than 1 distinct hotel
   if(allPillItems.length>1){wrap.classList.add('visible');renderPills(allPillItems);}
   else wrap.classList.remove('visible');
 }
@@ -579,7 +579,7 @@ function buildFilterBar(items){
 function renderPills(items){
   const container=document.getElementById('filter-pills');
   container.innerHTML='';
-  if(!items.length){container.innerHTML='<span style="font-size:12px;color:var(--text3);font-style:italic;">No hotels match</span>';return;}
+  if(!items.length){container.innerHTML='<span style="font-size:11px;color:var(--text3);font-style:italic;">No offers match</span>';return;}
   items.forEach(({name,count})=>{
     const pill=document.createElement('span');
     pill.className='filter-pill'+(activeFilters.has(name)?' active':'');
@@ -611,13 +611,30 @@ function filterPillSearch(val){
 
 function applyFilter(){
   const body=document.getElementById('results-body');
+  // Build a map: for each active filter hotel, find what row IDs match hero sends
+  // Then show those hero rows AND any push rows on the same date+sheet combo
+  // Simpler approach: for hero rows match by hotel cell; for push rows, show them
+  // if their date+sheet matches any visible hero row
+  const heroRowKeys=new Set();
   [...body.querySelectorAll('tr')].forEach(tr=>{
-    if(tr.classList.contains('group-header'))return;
+    if(tr.classList.contains('group-header')||tr.classList.contains('push-row'))return;
     if(activeFilters.size===0){tr.classList.remove('filtered-out');return;}
     const hotelCell=tr.querySelectorAll('td')[2];if(!hotelCell)return;
     const cellText=hotelCell.textContent.trim();
     const matches=[...activeFilters].some(f=>cellText.toLowerCase().includes(f.toLowerCase())||f.toLowerCase().includes(cellText.toLowerCase()));
     tr.classList.toggle('filtered-out',!matches);
+    if(matches){
+      // record sheet+date key so push rows on same send are also shown
+      const dateCell=tr.querySelectorAll('td')[1],sheetCell=tr.querySelectorAll('td')[0];
+      heroRowKeys.add((sheetCell?sheetCell.textContent.trim():'')+'|'+(dateCell?dateCell.textContent.trim():''));
+    }
+  });
+  // Now handle push rows: show if no filters active, OR if they share a sheet+date with a visible hero row
+  [...body.querySelectorAll('tr.push-row')].forEach(tr=>{
+    if(activeFilters.size===0){tr.classList.remove('filtered-out');return;}
+    const dateCell=tr.querySelectorAll('td')[1],sheetCell=tr.querySelectorAll('td')[0];
+    const key=(sheetCell?sheetCell.textContent.trim():'')+'|'+(dateCell?dateCell.textContent.trim():'');
+    tr.classList.toggle('filtered-out',!heroRowKeys.has(key));
   });
   updateStatsFromDom();
 }
