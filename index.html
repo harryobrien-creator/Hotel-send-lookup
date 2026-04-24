@@ -129,18 +129,22 @@
   .results-label { font-size: 14px; font-weight: 600; }
   .count-badge { font-size: 12px; padding: 4px 12px; border-radius: 99px; background: var(--blue-dim); color: var(--blue); font-weight: 600; }
 
-  /* Filter bar — ultra-compact inline pills */
-  .filter-bar-wrap { display: none; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-  .filter-bar-wrap.visible { display: flex; }
-  .filter-bar-label { font-size: 11px; font-weight: 600; color: var(--text3); white-space: nowrap; flex-shrink: 0; }
-  .filter-pills { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
-  .filter-pill { display: inline-flex; align-items: center; gap: 3px; padding: 2px 9px; border: 1px solid var(--border2); border-radius: 99px; cursor: pointer; font-size: 11px; font-weight: 500; color: var(--text2); background: var(--surface); transition: all 0.12s; user-select: none; white-space: nowrap; }
-  .filter-pill:hover { border-color: var(--blue-bright); color: var(--blue); background: var(--blue-dim); }
-  .filter-pill.active { border-color: var(--blue-bright); color: var(--blue); background: var(--blue-dim); font-weight: 600; }
-  .filter-pill .fp-count { font-size: 10px; color: var(--text3); }
-  .filter-pill.active .fp-count { color: var(--blue); }
-  .filter-bar-clear { font-size: 11px; color: var(--blue-bright); cursor: pointer; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
-  .filter-bar-clear:hover { text-decoration: underline; }
+  /* Results layout with sticky sidebar */
+  .results-layout { display: flex; gap: 16px; align-items: flex-start; }
+  .filter-sidebar { width: 220px; flex-shrink: 0; position: sticky; top: 16px; background: var(--surface); border: 1px solid var(--border2); border-radius: var(--radius-lg); padding: 12px 14px; box-shadow: var(--shadow); max-height: calc(100vh - 32px); overflow-y: auto; }
+  .filter-sidebar::-webkit-scrollbar { width: 3px; }
+  .filter-sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+  .filter-sidebar-label { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
+  .filter-sidebar-clear { font-size: 11px; color: var(--blue-bright); cursor: pointer; font-weight: 500; text-transform: none; letter-spacing: 0; display: none; }
+  .filter-sidebar-clear:hover { text-decoration: underline; }
+  .filter-pills { display: flex; flex-direction: column; gap: 2px; }
+  .filter-pill { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 5px 8px; border: 1px solid transparent; border-radius: 7px; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--text2); transition: all 0.12s; user-select: none; line-height: 1.3; }
+  .filter-pill:hover { background: var(--surface2); color: var(--text); }
+  .filter-pill.active { background: var(--blue-dim); color: var(--blue); border-color: rgba(34,114,204,0.2); font-weight: 600; }
+  .filter-pill .fp-name { flex: 1; }
+  .filter-pill .fp-count { font-size: 10px; font-weight: 600; color: var(--text3); background: var(--surface2); padding: 1px 5px; border-radius: 99px; flex-shrink: 0; white-space: nowrap; }
+  .filter-pill.active .fp-count { background: rgba(34,114,204,0.15); color: var(--blue); }
+  .table-side { flex: 1; min-width: 0; }
 
   .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: auto; box-shadow: var(--shadow); }
   table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 800px; }
@@ -291,28 +295,35 @@
         </div>
       </div>
 
-      <!-- Filter bar: ultra-compact inline pills -->
-      <div class="filter-bar-wrap" id="filter-bar-wrap">
-        <span class="filter-bar-label">Narrow to:</span>
-        <div class="filter-pills" id="filter-pills"></div>
-        <span class="filter-bar-clear" id="filter-bar-clear" onclick="clearAllFilters()" style="display:none;">Clear</span>
-      </div>
+      <div class="results-layout">
+        <!-- Sticky filter sidebar -->
+        <div class="filter-sidebar" id="filter-sidebar" style="display:none;">
+          <div class="filter-sidebar-label">
+            Narrow to
+            <span class="filter-sidebar-clear" id="filter-bar-clear" onclick="clearAllFilters()">Clear</span>
+          </div>
+          <div class="filter-pills" id="filter-pills"></div>
+        </div>
 
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:10%">Schedule</th>
-              <th style="width:12%">Send date</th>
-              <th style="width:20%">Hotel / property</th>
-              <th style="width:13%">Position / type</th>
-              <th style="width:26%">Column &amp; content</th>
-              <th style="width:13%">Region</th>
-              <th style="width:6%"></th>
-            </tr>
-          </thead>
-          <tbody id="results-body"></tbody>
-        </table>
+        <!-- Table -->
+        <div class="table-side">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:10%">Schedule</th>
+                  <th style="width:12%">Send date</th>
+                  <th style="width:20%">Hotel / property</th>
+                  <th style="width:13%">Position / type</th>
+                  <th style="width:26%">Column &amp; content</th>
+                  <th style="width:13%">Region</th>
+                  <th style="width:6%"></th>
+                </tr>
+              </thead>
+              <tbody id="results-body"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -549,9 +560,8 @@ function showAll(){
   renderTable(results,false);
 }
 
-// ── Filter bar ────────────────────────────────────────────────
+// ── Filter sidebar ────────────────────────────────────────────
 function buildFilterBar(items){
-  // Pills = distinct hero-matched hotel names only (no push names)
   const countMap={};
   items.forEach(item=>{
     if(item.isGroupHeader||item.isPush)return;
@@ -563,18 +573,18 @@ function buildFilterBar(items){
   allPillItems=Object.entries(countMap).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([name,count])=>({name,count}));
   activeFilters=new Set();
   document.getElementById('filter-bar-clear').style.display='none';
-  const wrap=document.getElementById('filter-bar-wrap');
-  if(allPillItems.length>1){wrap.classList.add('visible');renderPills();}
-  else wrap.classList.remove('visible');
+  const sidebar=document.getElementById('filter-sidebar');
+  if(allPillItems.length>1){sidebar.style.display='block';renderPills();}
+  else sidebar.style.display='none';
 }
 
 function renderPills(){
   const container=document.getElementById('filter-pills');
   container.innerHTML='';
   allPillItems.forEach(({name,count})=>{
-    const pill=document.createElement('span');
+    const pill=document.createElement('div');
     pill.className='filter-pill'+(activeFilters.has(name)?' active':'');
-    pill.innerHTML=`${name} <span class="fp-count">${count}</span>`;
+    pill.innerHTML=`<span class="fp-name">${name}</span><span class="fp-count">${count}</span>`;
     pill.addEventListener('click',()=>toggleFilterPill(name));
     container.appendChild(pill);
   });
@@ -632,7 +642,7 @@ function renderTable(items,isMulti,totalHeroOv,totalPushOv){
 
   if(!items.length||(items.length===1&&items[0].isGroupHeader)){
     body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text3);font-style:italic;">No matches found. Try a different search term.</td></tr>`;
-    document.getElementById('filter-bar-wrap').classList.remove('visible');
+    document.getElementById('filter-sidebar').style.display='none';
   } else {
     items.forEach(item=>{
       if(item.isGroupHeader){
@@ -721,7 +731,7 @@ function resetTool(){
   document.getElementById('file-input').value='';document.getElementById('s-name').value='';clearDates();
   document.getElementById('upload-area').style.display='block';document.getElementById('app-area').style.display='none';
   document.getElementById('results-area').style.display='none';document.getElementById('upload-error').style.display='none';
-  document.getElementById('filter-bar-wrap').classList.remove('visible');setMode('single');
+  document.getElementById('filter-sidebar').style.display='none';setMode('single');
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'){if(currentMode==='single')searchSingle();else searchMulti();}});
