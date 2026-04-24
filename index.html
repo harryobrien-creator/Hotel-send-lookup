@@ -129,22 +129,18 @@
   .results-label { font-size: 14px; font-weight: 600; }
   .count-badge { font-size: 12px; padding: 4px 12px; border-radius: 99px; background: var(--blue-dim); color: var(--blue); font-weight: 600; }
 
-  /* Filter bar — compact horizontal pills above table */
-  .filter-bar-wrap { background: var(--surface2); border-radius: var(--radius); border: 1px solid var(--border2); padding: 10px 14px; margin-bottom: 8px; display: none; }
-  .filter-bar-wrap.visible { display: block; }
-  .filter-bar-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .filter-bar-label { font-size: 11px; font-weight: 600; color: var(--text3); white-space: nowrap; }
-  .filter-bar-search { height: 26px; padding: 0 8px; font-size: 11px; font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text); border: 1.5px solid var(--border2); border-radius: 6px; width: 150px; }
-  .filter-bar-search:focus { outline: none; border-color: var(--blue-bright); }
-  .filter-bar-search::placeholder { color: var(--text3); }
-  .filter-bar-clear { font-size: 11px; color: var(--blue-bright); cursor: pointer; font-weight: 500; margin-left: auto; white-space: nowrap; }
-  .filter-bar-clear:hover { text-decoration: underline; }
-  .filter-pills { display: flex; flex-wrap: wrap; gap: 5px; }
-  .filter-pill { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border: 1.5px solid var(--border2); border-radius: 99px; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--text2); background: var(--surface); transition: all 0.12s; user-select: none; white-space: nowrap; }
+  /* Filter bar — ultra-compact inline pills */
+  .filter-bar-wrap { display: none; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .filter-bar-wrap.visible { display: flex; }
+  .filter-bar-label { font-size: 11px; font-weight: 600; color: var(--text3); white-space: nowrap; flex-shrink: 0; }
+  .filter-pills { display: flex; flex-wrap: wrap; gap: 4px; flex: 1; }
+  .filter-pill { display: inline-flex; align-items: center; gap: 3px; padding: 2px 9px; border: 1px solid var(--border2); border-radius: 99px; cursor: pointer; font-size: 11px; font-weight: 500; color: var(--text2); background: var(--surface); transition: all 0.12s; user-select: none; white-space: nowrap; }
   .filter-pill:hover { border-color: var(--blue-bright); color: var(--blue); background: var(--blue-dim); }
   .filter-pill.active { border-color: var(--blue-bright); color: var(--blue); background: var(--blue-dim); font-weight: 600; }
   .filter-pill .fp-count { font-size: 10px; color: var(--text3); }
   .filter-pill.active .fp-count { color: var(--blue); }
+  .filter-bar-clear { font-size: 11px; color: var(--blue-bright); cursor: pointer; font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+  .filter-bar-clear:hover { text-decoration: underline; }
 
   .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: auto; box-shadow: var(--shadow); }
   table { width: 100%; border-collapse: collapse; table-layout: fixed; min-width: 800px; }
@@ -295,14 +291,11 @@
         </div>
       </div>
 
-      <!-- Filter bar: compact horizontal multi-select pills above table -->
+      <!-- Filter bar: ultra-compact inline pills -->
       <div class="filter-bar-wrap" id="filter-bar-wrap">
-        <div class="filter-bar-top">
-          <span class="filter-bar-label">Filter by offer</span>
-          <input type="text" class="filter-bar-search" id="filter-bar-search" placeholder="Search…" oninput="filterPillSearch(this.value)">
-          <span class="filter-bar-clear" id="filter-bar-clear" onclick="clearAllFilters()" style="display:none;">Clear</span>
-        </div>
+        <span class="filter-bar-label">Narrow to:</span>
         <div class="filter-pills" id="filter-pills"></div>
+        <span class="filter-bar-clear" id="filter-bar-clear" onclick="clearAllFilters()" style="display:none;">Clear</span>
       </div>
 
       <div class="table-wrap">
@@ -558,7 +551,7 @@ function showAll(){
 
 // ── Filter bar ────────────────────────────────────────────────
 function buildFilterBar(items){
-  // Only count hero-matched hotel names for the pills (not push names)
+  // Pills = distinct hero-matched hotel names only (no push names)
   const countMap={};
   items.forEach(item=>{
     if(item.isGroupHeader||item.isPush)return;
@@ -570,20 +563,17 @@ function buildFilterBar(items){
   allPillItems=Object.entries(countMap).sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0])).map(([name,count])=>({name,count}));
   activeFilters=new Set();
   document.getElementById('filter-bar-clear').style.display='none';
-  document.getElementById('filter-bar-search').value='';
   const wrap=document.getElementById('filter-bar-wrap');
-  if(allPillItems.length>1){wrap.classList.add('visible');renderPills(allPillItems);}
+  if(allPillItems.length>1){wrap.classList.add('visible');renderPills();}
   else wrap.classList.remove('visible');
 }
 
-function renderPills(items){
+function renderPills(){
   const container=document.getElementById('filter-pills');
   container.innerHTML='';
-  if(!items.length){container.innerHTML='<span style="font-size:11px;color:var(--text3);font-style:italic;">No offers match</span>';return;}
-  items.forEach(({name,count})=>{
+  allPillItems.forEach(({name,count})=>{
     const pill=document.createElement('span');
     pill.className='filter-pill'+(activeFilters.has(name)?' active':'');
-    pill.dataset.hotel=name;
     pill.innerHTML=`${name} <span class="fp-count">${count}</span>`;
     pill.addEventListener('click',()=>toggleFilterPill(name));
     container.appendChild(pill);
@@ -594,19 +584,13 @@ function toggleFilterPill(name){
   if(activeFilters.has(name))activeFilters.delete(name);else activeFilters.add(name);
   document.getElementById('filter-bar-clear').style.display=activeFilters.size>0?'inline':'none';
   applyFilter();
-  const searchVal=document.getElementById('filter-bar-search').value;
-  renderPills(searchVal?allPillItems.filter(i=>i.name.toLowerCase().includes(searchVal.toLowerCase())):allPillItems);
+  renderPills();
 }
 
 function clearAllFilters(){
   activeFilters.clear();
   document.getElementById('filter-bar-clear').style.display='none';
-  document.getElementById('filter-bar-search').value='';
-  renderPills(allPillItems);applyFilter();
-}
-
-function filterPillSearch(val){
-  renderPills(val?allPillItems.filter(i=>i.name.toLowerCase().includes(val.toLowerCase())):allPillItems);
+  renderPills();applyFilter();
 }
 
 function applyFilter(){
